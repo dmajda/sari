@@ -12,7 +12,7 @@ categories = ["compilers", "mathematics"]
 [dependencies]
 
 [dev-dependencies]
-divan = "0.1.17"
+criterion = "0.5.1"
 
 [[bench]]
 name = "eval_benches"

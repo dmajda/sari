@@ -1,4 +1,4 @@
-use divan::{counter::BytesCount, Bencher};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::fmt;
 
 fn generate_expr(depth: u32) -> String {
@@ -73,14 +73,18 @@ fn generate_expr(depth: u32) -> String {
     buf
 }
 
-#[divan::bench(args = [5, 10])]
-fn bench_eval(bencher: Bencher, depth: u32) {
-    bencher
-        .with_inputs(|| generate_expr(depth))
-        .input_counter(BytesCount::of_str)
-        .bench_values(|expr| sari::eval(&expr));
+fn bench_eval(c: &mut Criterion) {
+    let mut group = c.benchmark_group("eval");
+    for depth in [5, 10] {
+        let expr = generate_expr(depth);
+
+        group.throughput(Throughput::Bytes(expr.len() as u64));
+        group.bench_with_input(BenchmarkId::from_parameter(depth), &expr, |b, expr| {
+            b.iter(|| sari::eval(expr));
+        });
+    }
+    group.finish();
 }
 
-fn main() {
-    divan::main();
-}
+criterion_group!(benches, bench_eval);
+criterion_main!(benches);
