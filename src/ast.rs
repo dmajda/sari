@@ -11,10 +11,10 @@ pub enum BinaryOp {
 impl BinaryOp {
     pub fn from_token(token: Token) -> BinaryOp {
         match token {
-            Token::Add => BinaryOp::Add,
-            Token::Sub => BinaryOp::Sub,
-            Token::Mul => BinaryOp::Mul,
-            Token::Div => BinaryOp::Div,
+            Token::Plus => BinaryOp::Add,
+            Token::Minus => BinaryOp::Sub,
+            Token::Star => BinaryOp::Mul,
+            Token::Slash => BinaryOp::Div,
             _ => panic!("not a binary operator: {:?}", token),
         }
     }
@@ -36,9 +36,9 @@ mod tests {
 
     #[test]
     fn binary_op_from_token_works() {
-        assert_eq!(BinaryOp::from_token(Token::Add), BinaryOp::Add);
-        assert_eq!(BinaryOp::from_token(Token::Sub), BinaryOp::Sub);
-        assert_eq!(BinaryOp::from_token(Token::Mul), BinaryOp::Mul);
-        assert_eq!(BinaryOp::from_token(Token::Div), BinaryOp::Div);
+        assert_eq!(BinaryOp::from_token(Token::Plus), BinaryOp::Add);
+        assert_eq!(BinaryOp::from_token(Token::Minus), BinaryOp::Sub);
+        assert_eq!(BinaryOp::from_token(Token::Star), BinaryOp::Mul);
+        assert_eq!(BinaryOp::from_token(Token::Slash), BinaryOp::Div);
     }
 }

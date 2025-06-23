@@ -1,9 +1,9 @@
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Token {
-    Add,
-    Sub,
-    Mul,
-    Div,
+    Plus,
+    Minus,
+    Star,
+    Slash,
     LParen,
     RParen,
 

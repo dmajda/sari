@@ -28,7 +28,7 @@ impl Parser<'_> {
     fn parse_expr(&mut self) -> Result<Box<Node>, Error> {
         let mut term = self.parse_term()?;
 
-        while let Some(&op @ (Token::Add | Token::Sub)) = self.scanner.peek() {
+        while let Some(&op @ (Token::Plus | Token::Minus)) = self.scanner.peek() {
             self.scanner.next();
 
             let right = self.parse_term()?;
@@ -46,7 +46,7 @@ impl Parser<'_> {
     fn parse_term(&mut self) -> Result<Box<Node>, Error> {
         let mut term = self.parse_factor()?;
 
-        while let Some(&op @ (Token::Mul | Token::Div)) = self.scanner.peek() {
+        while let Some(&op @ (Token::Star | Token::Slash)) = self.scanner.peek() {
             self.scanner.next();
 
             let right = self.parse_factor()?;

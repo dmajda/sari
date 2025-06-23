@@ -57,10 +57,10 @@ impl Iterator for Scanner<'_> {
 
         let ch = self.chars.next()?;
         let token = match ch {
-            '+' => Token::Add,
-            '-' => Token::Sub,
-            '*' => Token::Mul,
-            '/' => Token::Div,
+            '+' => Token::Plus,
+            '-' => Token::Minus,
+            '*' => Token::Star,
+            '/' => Token::Slash,
             '(' => Token::LParen,
             ')' => Token::RParen,
 
@@ -109,10 +109,10 @@ mod tests {
 
     #[test]
     fn scans_simple_tokens() {
-        assert_scans!("+", vec![Token::Add]);
-        assert_scans!("-", vec![Token::Sub]);
-        assert_scans!("*", vec![Token::Mul]);
-        assert_scans!("/", vec![Token::Div]);
+        assert_scans!("+", vec![Token::Plus]);
+        assert_scans!("-", vec![Token::Minus]);
+        assert_scans!("*", vec![Token::Star]);
+        assert_scans!("/", vec![Token::Slash]);
         assert_scans!("(", vec![Token::LParen]);
         assert_scans!(")", vec![Token::RParen]);
     }
@@ -135,6 +135,6 @@ mod tests {
 
     #[test]
     fn scans_multiple_tokens() {
-        assert_scans!("1+2", vec![Token::Int(1), Token::Add, Token::Int(2)]);
+        assert_scans!("1+2", vec![Token::Int(1), Token::Plus, Token::Int(2)]);
     }
 }
