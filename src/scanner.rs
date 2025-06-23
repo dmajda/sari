@@ -131,6 +131,9 @@ mod tests {
     #[test]
     fn scans_error_token() {
         assert_scans!("%", vec![Token::Error('%')]);
+
+        // Unicode
+        assert_scans!("‰", vec![Token::Error('‰')]);
     }
 
     #[test]
