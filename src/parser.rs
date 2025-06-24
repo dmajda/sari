@@ -130,6 +130,7 @@ mod tests {
         assert_does_not_parse!("%", "expected integer literal or `(`");
         assert_does_not_parse!("1 + %", "expected integer literal or `(`");
     }
+
     // Canonical term is `1 * 2`.
     #[test]
     fn parses_term() {
