@@ -127,6 +127,7 @@ mod tests {
             )
         );
 
+        // errors
         assert_does_not_parse!("", "expected integer literal or `(`");
         assert_does_not_parse!("1 +", "expected integer literal or `(`");
     }
@@ -142,6 +143,7 @@ mod tests {
             mul(mul(mul(int(1), int(2)), int(3)), int(4))
         );
 
+        // errors
         assert_does_not_parse!("", "expected integer literal or `(`");
         assert_does_not_parse!("1 *", "expected integer literal or `(`");
     }
@@ -152,6 +154,7 @@ mod tests {
         assert_parses!("1", int(1));
         assert_parses!("(1 + 2)", add(int(1), int(2)));
 
+        // errors
         assert_does_not_parse!("(", "expected integer literal or `(`");
         assert_does_not_parse!("(1 + 2", "expected `)`");
     }
