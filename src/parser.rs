@@ -34,8 +34,8 @@ impl Parser<'_> {
             let right = self.parse_term()?;
 
             term = Box::new(Node::BinaryExpr {
-                left: term,
                 op: BinaryOp::from_token(op),
+                left: term,
                 right,
             });
         }
@@ -52,8 +52,8 @@ impl Parser<'_> {
             let right = self.parse_factor()?;
 
             term = Box::new(Node::BinaryExpr {
-                left: term,
                 op: BinaryOp::from_token(op),
+                left: term,
                 right,
             });
         }
