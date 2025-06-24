@@ -127,8 +127,8 @@ mod tests {
             )
         );
 
-        assert_does_not_parse!("%", "expected integer literal or `(`");
-        assert_does_not_parse!("1 + %", "expected integer literal or `(`");
+        assert_does_not_parse!("", "expected integer literal or `(`");
+        assert_does_not_parse!("1 +", "expected integer literal or `(`");
     }
 
     // Canonical term is `1 * 2`.
@@ -142,8 +142,8 @@ mod tests {
             mul(mul(mul(int(1), int(2)), int(3)), int(4))
         );
 
-        assert_does_not_parse!("%", "expected integer literal or `(`");
-        assert_does_not_parse!("1 * %", "expected integer literal or `(`");
+        assert_does_not_parse!("", "expected integer literal or `(`");
+        assert_does_not_parse!("1 *", "expected integer literal or `(`");
     }
 
     // Canonical factor is `1`.
