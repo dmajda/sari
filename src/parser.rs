@@ -19,9 +19,10 @@ impl Parser<'_> {
     pub fn parse(&mut self) -> Result<Box<Node>, Error> {
         let expr = self.parse_expr()?;
 
-        match self.scanner.peek() {
-            Some(_) => Err(Error::new("expected end of input")),
-            None => Ok(expr),
+        if self.scanner.peek().is_none() {
+            Ok(expr)
+        } else {
+            Err(Error::new("expected end of input"))
         }
     }
 
