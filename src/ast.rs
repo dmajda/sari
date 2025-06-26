@@ -15,7 +15,7 @@ impl BinaryOp {
             Token::Minus => BinaryOp::Sub,
             Token::Star => BinaryOp::Mul,
             Token::Slash => BinaryOp::Div,
-            _ => panic!("not a binary operator: {:?}", token),
+            _ => panic!("not a binary operator: {token:?}"),
         }
     }
 }
