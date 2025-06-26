@@ -40,18 +40,6 @@ impl Scanner<'_> {
     }
 }
 
-fn is_whitespace(ch: char) -> bool {
-    ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'
-}
-
-fn is_digit(ch: char) -> bool {
-    ch.is_ascii_digit()
-}
-
-fn to_digit(ch: char) -> i32 {
-    (ch as u32).wrapping_sub('0' as u32) as i32
-}
-
 impl Iterator for Scanner<'_> {
     type Item = Token;
 
@@ -74,6 +62,18 @@ impl Iterator for Scanner<'_> {
 
         Some(token)
     }
+}
+
+fn is_whitespace(ch: char) -> bool {
+    ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'
+}
+
+fn is_digit(ch: char) -> bool {
+    ch.is_ascii_digit()
+}
+
+fn to_digit(ch: char) -> i32 {
+    (ch as u32).wrapping_sub('0' as u32) as i32
 }
 
 #[cfg(test)]
