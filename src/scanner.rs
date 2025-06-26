@@ -24,15 +24,6 @@ impl Scanner<'_> {
     }
 
     fn scan_int_rest(&mut self, first_ch: char) -> Token {
-        // There is `char::to_digit`, but it's too complicated because it
-        // supports bases other than 10 and it doesn't assume a valid digit,
-        // which means it returns an option.
-        //
-        // Let's roll out our own, simpler version.
-        fn to_digit(ch: char) -> i32 {
-            (ch as u32).wrapping_sub('0' as u32) as i32
-        }
-
         let mut value = to_digit(first_ch);
 
         while let Some(&ch) = self.chars.peek() {
@@ -55,6 +46,15 @@ fn is_whitespace(ch: char) -> bool {
 
 fn is_digit(ch: char) -> bool {
     ch.is_ascii_digit()
+}
+
+// There is `char::to_digit`, but it's too complicated because it supports bases
+// other than 10 and it doesn't assume a valid digit, which means it returns an
+// option.
+//
+// Let's roll out our own, simpler version.
+fn to_digit(ch: char) -> i32 {
+    (ch as u32).wrapping_sub('0' as u32) as i32
 }
 
 impl Iterator for Scanner<'_> {
