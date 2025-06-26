@@ -70,14 +70,12 @@ impl Parser<'_> {
             Some(Token::LParen) => {
                 let expr = self.parse_expr()?;
 
-                match self.scanner.peek() {
-                    Some(Token::RParen) => {
-                        self.scanner.next();
-
-                        Ok(expr)
-                    }
-                    _ => Err(Error::new("expected `)`")),
+                if !matches!(self.scanner.peek(), Some(Token::RParen)) {
+                    return Err(Error::new("expected `)`"));
                 }
+                self.scanner.next();
+
+                Ok(expr)
             }
             _ => Err(Error::new("expected integer literal or `(`")),
         }
