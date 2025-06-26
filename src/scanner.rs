@@ -30,9 +30,10 @@ impl Scanner<'_> {
             if !is_digit(ch) {
                 break;
             }
-            value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
 
             self.chars.next();
+
+            value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
         }
 
         Token::Int(value)
