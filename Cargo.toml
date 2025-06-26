@@ -2,7 +2,7 @@
 name = "sari"
 version = "1.0.0"
 authors = ["David Majda <david@majda.cz>"]
-edition = "2021"
+edition = "2024"
 description = "Simple arithmetic expression evaluator"
 repository = "https://github.com/dmajda/sari"
 license = "MIT OR Apache-2.0"
