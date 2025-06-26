@@ -19,7 +19,7 @@ fn generate_expr(depth: u32) -> String {
                 Op::Div => "/",
             };
 
-            write!(f, "{}", s)
+            write!(f, "{s}")
         }
     }
 
