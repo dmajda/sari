@@ -15,7 +15,7 @@ impl Scanner<'_> {
 
     fn skip_whitespace(&mut self) {
         while let Some(&ch) = self.chars.peek() {
-            if ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' {
+            if is_whitespace(ch) {
                 self.chars.next();
             } else {
                 break;
@@ -36,7 +36,7 @@ impl Scanner<'_> {
         let mut value = to_digit(first_ch);
 
         while let Some(&ch) = self.chars.peek() {
-            if ch.is_ascii_digit() {
+            if is_digit(ch) {
                 value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
 
                 self.chars.next();
@@ -47,6 +47,14 @@ impl Scanner<'_> {
 
         Token::Int(value)
     }
+}
+
+fn is_whitespace(ch: char) -> bool {
+    ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'
+}
+
+fn is_digit(ch: char) -> bool {
+    ch.is_ascii_digit()
 }
 
 impl Iterator for Scanner<'_> {
