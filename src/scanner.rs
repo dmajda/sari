@@ -15,11 +15,11 @@ impl Scanner<'_> {
 
     fn skip_whitespace(&mut self) {
         while let Some(&ch) = self.chars.peek() {
-            if is_whitespace(ch) {
-                self.chars.next();
-            } else {
+            if !is_whitespace(ch) {
                 break;
             }
+
+            self.chars.next();
         }
     }
 
@@ -27,13 +27,12 @@ impl Scanner<'_> {
         let mut value = to_digit(first_ch);
 
         while let Some(&ch) = self.chars.peek() {
-            if is_digit(ch) {
-                value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
-
-                self.chars.next();
-            } else {
+            if !is_digit(ch) {
                 break;
             }
+            value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
+
+            self.chars.next();
         }
 
         Token::Int(value)
