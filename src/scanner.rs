@@ -14,11 +14,9 @@ impl Scanner<'_> {
     }
 
     fn skip_whitespace(&mut self) {
-        while let Some(&ch) = self.chars.peek() {
-            if !is_whitespace(ch) {
-                break;
-            }
-
+        while let Some(&ch) = self.chars.peek()
+            && is_whitespace(ch)
+        {
             self.chars.next();
         }
     }
@@ -26,11 +24,9 @@ impl Scanner<'_> {
     fn scan_int_rest(&mut self, first_ch: char) -> Token {
         let mut value = to_digit(first_ch);
 
-        while let Some(&ch) = self.chars.peek() {
-            if !is_digit(ch) {
-                break;
-            }
-
+        while let Some(&ch) = self.chars.peek()
+            && is_digit(ch)
+        {
             self.chars.next();
 
             value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
