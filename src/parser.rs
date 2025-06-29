@@ -128,7 +128,9 @@ mod tests {
 
         // errors
         assert_does_not_parse!("", "expected integer literal or `(`");
-        assert_does_not_parse!("1 +", "expected integer literal or `(`");
+        assert_does_not_parse!("%", "expected integer literal or `(`");
+        assert_does_not_parse!("1 + ", "expected integer literal or `(`");
+        assert_does_not_parse!("1 + %", "expected integer literal or `(`");
     }
 
     // Canonical term is `1 * 2`.
@@ -144,7 +146,9 @@ mod tests {
 
         // errors
         assert_does_not_parse!("", "expected integer literal or `(`");
-        assert_does_not_parse!("1 *", "expected integer literal or `(`");
+        assert_does_not_parse!("%", "expected integer literal or `(`");
+        assert_does_not_parse!("1 * ", "expected integer literal or `(`");
+        assert_does_not_parse!("1 * %", "expected integer literal or `(`");
     }
 
     // Canonical factor is `1`.
@@ -155,7 +159,9 @@ mod tests {
 
         // errors
         assert_does_not_parse!("(", "expected integer literal or `(`");
+        assert_does_not_parse!("(%", "expected integer literal or `(`");
         assert_does_not_parse!("(1 + 2", "expected `)`");
+        assert_does_not_parse!("(1 + 2%", "expected `)`");
     }
 
     #[test]
@@ -173,6 +179,6 @@ mod tests {
 
     #[test]
     fn does_not_parse_trailing_input() {
-        assert_does_not_parse!("1 + 2 %", "expected end of input");
+        assert_does_not_parse!("1 + 2%", "expected end of input");
     }
 }
