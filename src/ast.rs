@@ -1,6 +1,6 @@
 use crate::token::Token;
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum BinaryOp {
     Add,
     Sub,

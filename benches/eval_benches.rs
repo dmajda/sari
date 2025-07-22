@@ -2,7 +2,7 @@ use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_m
 use std::fmt;
 
 fn generate_expr(depth: u32) -> String {
-    #[derive(Copy, Clone, PartialEq, Debug)]
+    #[derive(Copy, Clone, Eq, PartialEq, Debug)]
     enum Op {
         Add,
         Sub,

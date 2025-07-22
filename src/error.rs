@@ -10,7 +10,7 @@ use std::{error, fmt};
 /// let result = sari::eval("1 / 0");
 /// assert_eq!(result, Err(Error::new("division by zero")));
 /// ```
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Error {
     message: String,
 }
