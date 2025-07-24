@@ -36,9 +36,9 @@ mod tests {
 
     #[test]
     fn binary_op_from_token_works() {
-        assert_eq!(BinaryOp::from_token(Token::Plus), BinaryOp::Add);
-        assert_eq!(BinaryOp::from_token(Token::Minus), BinaryOp::Sub);
-        assert_eq!(BinaryOp::from_token(Token::Star), BinaryOp::Mul);
-        assert_eq!(BinaryOp::from_token(Token::Slash), BinaryOp::Div);
+        assert_eq!(BinaryOp::from_token(Token::plus()), BinaryOp::Add);
+        assert_eq!(BinaryOp::from_token(Token::minus()), BinaryOp::Sub);
+        assert_eq!(BinaryOp::from_token(Token::star()), BinaryOp::Mul);
+        assert_eq!(BinaryOp::from_token(Token::slash()), BinaryOp::Div);
     }
 }

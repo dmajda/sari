@@ -32,7 +32,7 @@ impl Scanner<'_> {
             value = value.wrapping_mul(10).wrapping_add(to_digit(ch));
         }
 
-        Token::Int(value)
+        Token::int(value)
     }
 }
 
@@ -44,16 +44,16 @@ impl Iterator for Scanner<'_> {
 
         let ch = self.chars.next()?;
         let token = match ch {
-            '+' => Token::Plus,
-            '-' => Token::Minus,
-            '*' => Token::Star,
-            '/' => Token::Slash,
-            '(' => Token::LParen,
-            ')' => Token::RParen,
+            '+' => Token::plus(),
+            '-' => Token::minus(),
+            '*' => Token::star(),
+            '/' => Token::slash(),
+            '(' => Token::l_paren(),
+            ')' => Token::r_paren(),
 
             '0'..='9' => self.scan_int_rest(ch),
 
-            _ => Token::Error,
+            _ => Token::error(),
         };
 
         Some(token)
@@ -92,51 +92,51 @@ mod tests {
     #[test]
     fn skips_whitespace() {
         // before
-        assert_scans!(" 1", vec![Token::Int(1)]);
-        assert_scans!("\t1", vec![Token::Int(1)]);
-        assert_scans!("\r1", vec![Token::Int(1)]);
-        assert_scans!("\n1", vec![Token::Int(1)]);
-        assert_scans!("   1", vec![Token::Int(1)]);
+        assert_scans!(" 1", vec![Token::int(1)]);
+        assert_scans!("\t1", vec![Token::int(1)]);
+        assert_scans!("\r1", vec![Token::int(1)]);
+        assert_scans!("\n1", vec![Token::int(1)]);
+        assert_scans!("   1", vec![Token::int(1)]);
 
         // after
-        assert_scans!("1 ", vec![Token::Int(1)]);
-        assert_scans!("1\t", vec![Token::Int(1)]);
-        assert_scans!("1\r", vec![Token::Int(1)]);
-        assert_scans!("1\n", vec![Token::Int(1)]);
-        assert_scans!("1   ", vec![Token::Int(1)]);
+        assert_scans!("1 ", vec![Token::int(1)]);
+        assert_scans!("1\t", vec![Token::int(1)]);
+        assert_scans!("1\r", vec![Token::int(1)]);
+        assert_scans!("1\n", vec![Token::int(1)]);
+        assert_scans!("1   ", vec![Token::int(1)]);
     }
 
     #[test]
     fn scans_simple_tokens() {
-        assert_scans!("+", vec![Token::Plus]);
-        assert_scans!("-", vec![Token::Minus]);
-        assert_scans!("*", vec![Token::Star]);
-        assert_scans!("/", vec![Token::Slash]);
-        assert_scans!("(", vec![Token::LParen]);
-        assert_scans!(")", vec![Token::RParen]);
+        assert_scans!("+", vec![Token::plus()]);
+        assert_scans!("-", vec![Token::minus()]);
+        assert_scans!("*", vec![Token::star()]);
+        assert_scans!("/", vec![Token::slash()]);
+        assert_scans!("(", vec![Token::l_paren()]);
+        assert_scans!(")", vec![Token::r_paren()]);
     }
 
     #[test]
     fn scans_int_token() {
-        assert_scans!("0", vec![Token::Int(0)]);
-        assert_scans!("9", vec![Token::Int(9)]);
-        assert_scans!("123", vec![Token::Int(123)]);
+        assert_scans!("0", vec![Token::int(0)]);
+        assert_scans!("9", vec![Token::int(9)]);
+        assert_scans!("123", vec![Token::int(123)]);
 
         // overflow
-        assert_scans!("2147483647", vec![Token::Int(2147483647)]);
-        assert_scans!("2147483648", vec![Token::Int(-2147483648)]);
+        assert_scans!("2147483647", vec![Token::int(2147483647)]);
+        assert_scans!("2147483648", vec![Token::int(-2147483648)]);
     }
 
     #[test]
     fn scans_error_token() {
-        assert_scans!("%", vec![Token::Error]);
+        assert_scans!("%", vec![Token::error()]);
 
         // Unicode
-        assert_scans!("‰", vec![Token::Error]);
+        assert_scans!("‰", vec![Token::error()]);
     }
 
     #[test]
     fn scans_multiple_tokens() {
-        assert_scans!("1+2", vec![Token::Int(1), Token::Plus, Token::Int(2)]);
+        assert_scans!("1+2", vec![Token::int(1), Token::plus(), Token::int(2)]);
     }
 }
