@@ -1,5 +1,5 @@
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Token {
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum TokenKind {
     Plus,
     Minus,
     Star,
@@ -7,41 +7,88 @@ pub enum Token {
     LParen,
     RParen,
 
-    Int(i32),
+    Int,
 
     Error,
 }
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum TokenValue {
+    None,
+    Int(i32),
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct Token {
+    kind: TokenKind,
+    value: TokenValue,
+}
+
 impl Token {
     pub fn plus() -> Token {
-        Token::Plus
+        Token {
+            kind: TokenKind::Plus,
+            value: TokenValue::None,
+        }
     }
 
     pub fn minus() -> Token {
-        Token::Minus
+        Token {
+            kind: TokenKind::Minus,
+            value: TokenValue::None,
+        }
     }
 
     pub fn star() -> Token {
-        Token::Star
+        Token {
+            kind: TokenKind::Star,
+            value: TokenValue::None,
+        }
     }
 
     pub fn slash() -> Token {
-        Token::Slash
+        Token {
+            kind: TokenKind::Slash,
+            value: TokenValue::None,
+        }
     }
 
     pub fn l_paren() -> Token {
-        Token::LParen
+        Token {
+            kind: TokenKind::LParen,
+            value: TokenValue::None,
+        }
     }
 
     pub fn r_paren() -> Token {
-        Token::RParen
+        Token {
+            kind: TokenKind::RParen,
+            value: TokenValue::None,
+        }
     }
 
     pub fn int(value: i32) -> Token {
-        Token::Int(value)
+        Token {
+            kind: TokenKind::Int,
+            value: TokenValue::Int(value),
+        }
     }
 
     pub fn error() -> Token {
-        Token::Error
+        Token {
+            kind: TokenKind::Error,
+            value: TokenValue::None,
+        }
+    }
+
+    pub fn kind(&self) -> TokenKind {
+        self.kind
+    }
+
+    pub fn int_value(&self) -> i32 {
+        match self.value {
+            TokenValue::Int(value) => value,
+            _ => panic!("token {self:?} doesn't have an integer value"),
+        }
     }
 }

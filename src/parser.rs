@@ -3,7 +3,7 @@ use std::iter::Peekable;
 use crate::ast::{BinaryOp, Node};
 use crate::error::Error;
 use crate::scanner::Scanner;
-use crate::token::Token;
+use crate::token::TokenKind;
 
 pub struct Parser<'a> {
     scanner: Peekable<Scanner<'a>>,
@@ -29,7 +29,9 @@ impl Parser<'_> {
     fn parse_expr(&mut self) -> Result<Box<Node>, Error> {
         let mut term = self.parse_term()?;
 
-        while let Some(&op @ (Token::Plus | Token::Minus)) = self.scanner.peek() {
+        while let Some(&op) = self.scanner.peek()
+            && matches!(op.kind(), TokenKind::Plus | TokenKind::Minus)
+        {
             self.scanner.next();
 
             let right = self.parse_term()?;
@@ -47,7 +49,9 @@ impl Parser<'_> {
     fn parse_term(&mut self) -> Result<Box<Node>, Error> {
         let mut term = self.parse_factor()?;
 
-        while let Some(&op @ (Token::Star | Token::Slash)) = self.scanner.peek() {
+        while let Some(&op) = self.scanner.peek()
+            && matches!(op.kind(), TokenKind::Star | TokenKind::Slash)
+        {
             self.scanner.next();
 
             let right = self.parse_factor()?;
@@ -63,14 +67,19 @@ impl Parser<'_> {
     }
 
     fn parse_factor(&mut self) -> Result<Box<Node>, Error> {
-        let token = self.scanner.next();
+        let Some(token) = self.scanner.next() else {
+            return Err(Error::new("expected integer literal or `(`"));
+        };
 
-        match token {
-            Some(Token::Int(value)) => Ok(Box::new(Node::IntLit(value))),
-            Some(Token::LParen) => {
+        match token.kind() {
+            TokenKind::Int => Ok(Box::new(Node::IntLit(token.int_value()))),
+            TokenKind::LParen => {
                 let expr = self.parse_expr()?;
 
-                if !matches!(self.scanner.peek(), Some(Token::RParen)) {
+                let Some(r_paren) = self.scanner.peek() else {
+                    return Err(Error::new("expected `)`"));
+                };
+                if !matches!(r_paren.kind(), TokenKind::RParen) {
                     return Err(Error::new("expected `)`"));
                 }
                 self.scanner.next();

@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::token::{Token, TokenKind};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum BinaryOp {
@@ -10,11 +10,11 @@ pub enum BinaryOp {
 
 impl BinaryOp {
     pub fn from_token(token: Token) -> BinaryOp {
-        match token {
-            Token::Plus => BinaryOp::Add,
-            Token::Minus => BinaryOp::Sub,
-            Token::Star => BinaryOp::Mul,
-            Token::Slash => BinaryOp::Div,
+        match token.kind() {
+            TokenKind::Plus => BinaryOp::Add,
+            TokenKind::Minus => BinaryOp::Sub,
+            TokenKind::Star => BinaryOp::Mul,
+            TokenKind::Slash => BinaryOp::Div,
             _ => panic!("not a binary operator: {token:?}"),
         }
     }
