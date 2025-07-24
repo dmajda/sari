@@ -53,7 +53,7 @@ impl Iterator for Scanner<'_> {
 
             '0'..='9' => self.scan_int_rest(ch),
 
-            _ => Token::Error(ch),
+            _ => Token::Error,
         };
 
         Some(token)
@@ -129,10 +129,10 @@ mod tests {
 
     #[test]
     fn scans_error_token() {
-        assert_scans!("%", vec![Token::Error('%')]);
+        assert_scans!("%", vec![Token::Error]);
 
         // Unicode
-        assert_scans!("‰", vec![Token::Error('‰')]);
+        assert_scans!("‰", vec![Token::Error]);
     }
 
     #[test]
