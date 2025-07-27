@@ -21,22 +21,30 @@ impl BinaryOp {
 }
 
 #[derive(Clone, PartialEq, Debug)]
+pub struct IntExpr {
+    pub value: i32,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct BinaryExpr {
+    pub op: BinaryOp,
+    pub left: Box<Expr>,
+    pub right: Box<Expr>,
+}
+
+#[derive(Clone, PartialEq, Debug)]
 pub enum Expr {
-    Int(i32),
-    Binary {
-        op: BinaryOp,
-        left: Box<Expr>,
-        right: Box<Expr>,
-    },
+    Int(IntExpr),
+    Binary(BinaryExpr),
 }
 
 impl Expr {
     pub fn int(value: i32) -> Box<Expr> {
-        Box::new(Expr::Int(value))
+        Box::new(Expr::Int(IntExpr { value }))
     }
 
     pub fn binary(op: BinaryOp, left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
-        Box::new(Expr::Binary { op, left, right })
+        Box::new(Expr::Binary(BinaryExpr { op, left, right }))
     }
 }
 

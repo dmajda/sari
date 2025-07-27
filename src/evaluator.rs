@@ -1,5 +1,7 @@
+use crate::ast::BinaryExpr;
 use crate::ast::BinaryOp;
 use crate::ast::Expr;
+use crate::ast::IntExpr;
 use crate::error::Error;
 
 pub struct Evaluator<'a> {
@@ -14,8 +16,8 @@ impl Evaluator<'_> {
     pub fn eval(&self) -> Result<i32, Error> {
         fn eval_expr(expr: &Expr) -> Result<i32, Error> {
             match expr {
-                Expr::Int(value) => Ok(*value),
-                Expr::Binary { op, left, right } => {
+                Expr::Int(IntExpr { value }) => Ok(*value),
+                Expr::Binary(BinaryExpr { op, left, right }) => {
                     let left = eval_expr(left)?;
                     let right = eval_expr(right)?;
 
