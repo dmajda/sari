@@ -1,23 +1,23 @@
 use crate::ast::BinaryOp;
-use crate::ast::Node;
+use crate::ast::Expr;
 use crate::error::Error;
 
 pub struct Evaluator<'a> {
-    ast: &'a Node,
+    ast: &'a Expr,
 }
 
 impl Evaluator<'_> {
-    pub fn new(ast: &Node) -> Evaluator {
+    pub fn new(ast: &Expr) -> Evaluator {
         Evaluator { ast }
     }
 
     pub fn eval(&self) -> Result<i32, Error> {
-        fn eval_node(node: &Node) -> Result<i32, Error> {
-            match node {
-                Node::IntLit(value) => Ok(*value),
-                Node::BinaryExpr { op, left, right } => {
-                    let left = eval_node(left)?;
-                    let right = eval_node(right)?;
+        fn eval_expr(expr: &Expr) -> Result<i32, Error> {
+            match expr {
+                Expr::Int(value) => Ok(*value),
+                Expr::Binary { op, left, right } => {
+                    let left = eval_expr(left)?;
+                    let right = eval_expr(right)?;
 
                     match op {
                         BinaryOp::Add => Ok(left.wrapping_add(right)),
@@ -35,7 +35,7 @@ impl Evaluator<'_> {
             }
         }
 
-        eval_node(self.ast)
+        eval_expr(self.ast)
     }
 }
 

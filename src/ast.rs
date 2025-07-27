@@ -21,12 +21,12 @@ impl BinaryOp {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub enum Node {
-    IntLit(i32),
-    BinaryExpr {
+pub enum Expr {
+    Int(i32),
+    Binary {
         op: BinaryOp,
-        left: Box<Node>,
-        right: Box<Node>,
+        left: Box<Expr>,
+        right: Box<Expr>,
     },
 }
 

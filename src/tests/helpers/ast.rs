@@ -1,35 +1,35 @@
-use crate::ast::{BinaryOp, Node};
+use crate::ast::{BinaryOp, Expr};
 
-pub fn int(value: i32) -> Box<Node> {
-    Box::new(Node::IntLit(value))
+pub fn int(value: i32) -> Box<Expr> {
+    Box::new(Expr::Int(value))
 }
 
-pub fn add(left: Box<Node>, right: Box<Node>) -> Box<Node> {
-    Box::new(Node::BinaryExpr {
+pub fn add(left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
+    Box::new(Expr::Binary {
         op: BinaryOp::Add,
         left,
         right,
     })
 }
 
-pub fn sub(left: Box<Node>, right: Box<Node>) -> Box<Node> {
-    Box::new(Node::BinaryExpr {
+pub fn sub(left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
+    Box::new(Expr::Binary {
         op: BinaryOp::Sub,
         left,
         right,
     })
 }
 
-pub fn mul(left: Box<Node>, right: Box<Node>) -> Box<Node> {
-    Box::new(Node::BinaryExpr {
+pub fn mul(left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
+    Box::new(Expr::Binary {
         op: BinaryOp::Mul,
         left,
         right,
     })
 }
 
-pub fn div(left: Box<Node>, right: Box<Node>) -> Box<Node> {
-    Box::new(Node::BinaryExpr {
+pub fn div(left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
+    Box::new(Expr::Binary {
         op: BinaryOp::Div,
         left,
         right,

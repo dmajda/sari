@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 
-use crate::ast::{BinaryOp, Node};
+use crate::ast::{BinaryOp, Expr};
 use crate::error::Error;
 use crate::scanner::Scanner;
 use crate::token::TokenKind;
@@ -16,7 +16,7 @@ impl Parser<'_> {
         }
     }
 
-    pub fn parse(&mut self) -> Result<Box<Node>, Error> {
+    pub fn parse(&mut self) -> Result<Box<Expr>, Error> {
         let expr = self.parse_expr()?;
 
         if self.scanner.peek().is_some() {
@@ -26,7 +26,7 @@ impl Parser<'_> {
         Ok(expr)
     }
 
-    fn parse_expr(&mut self) -> Result<Box<Node>, Error> {
+    fn parse_expr(&mut self) -> Result<Box<Expr>, Error> {
         let mut term = self.parse_term()?;
 
         while let Some(&op) = self.scanner.peek()
@@ -36,7 +36,7 @@ impl Parser<'_> {
 
             let right = self.parse_term()?;
 
-            term = Box::new(Node::BinaryExpr {
+            term = Box::new(Expr::Binary {
                 op: BinaryOp::from_token(op),
                 left: term,
                 right,
@@ -46,7 +46,7 @@ impl Parser<'_> {
         Ok(term)
     }
 
-    fn parse_term(&mut self) -> Result<Box<Node>, Error> {
+    fn parse_term(&mut self) -> Result<Box<Expr>, Error> {
         let mut term = self.parse_factor()?;
 
         while let Some(&op) = self.scanner.peek()
@@ -56,7 +56,7 @@ impl Parser<'_> {
 
             let right = self.parse_factor()?;
 
-            term = Box::new(Node::BinaryExpr {
+            term = Box::new(Expr::Binary {
                 op: BinaryOp::from_token(op),
                 left: term,
                 right,
@@ -66,13 +66,13 @@ impl Parser<'_> {
         Ok(term)
     }
 
-    fn parse_factor(&mut self) -> Result<Box<Node>, Error> {
+    fn parse_factor(&mut self) -> Result<Box<Expr>, Error> {
         let Some(token) = self.scanner.next() else {
             return Err(Error::new("expected integer literal or `(`"));
         };
 
         match token.kind() {
-            TokenKind::Int => Ok(Box::new(Node::IntLit(token.int_value()))),
+            TokenKind::Int => Ok(Box::new(Expr::Int(token.int_value()))),
             TokenKind::LParen => {
                 let expr = self.parse_expr()?;
 
