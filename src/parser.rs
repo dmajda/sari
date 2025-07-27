@@ -86,7 +86,6 @@ impl Parser<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tests::helpers::ast::*;
 
     macro_rules! assert_parses {
         ($input:expr, $ast:expr) => {
@@ -107,23 +106,40 @@ mod tests {
     // Canonical expr is `1 + 2`.
     #[test]
     fn parses_expr() {
-        assert_parses!("1 * 2", mul(int(1), int(2)));
+        assert_parses!(
+            "1 * 2",
+            Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2))
+        );
         assert_parses!(
             "1 * 2 + 3 * 4",
-            add(mul(int(1), int(2)), mul(int(3), int(4)))
+            Expr::binary(
+                BinaryOp::Add,
+                Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
+                Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4))
+            )
         );
         assert_parses!(
             "1 * 2 - 3 * 4",
-            sub(mul(int(1), int(2)), mul(int(3), int(4)))
+            Expr::binary(
+                BinaryOp::Sub,
+                Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
+                Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4))
+            )
         );
         assert_parses!(
             "1 * 2 + 3 * 4 + 5 * 6 + 7 * 8",
-            add(
-                add(
-                    add(mul(int(1), int(2)), mul(int(3), int(4))),
-                    mul(int(5), int(6))
+            Expr::binary(
+                BinaryOp::Add,
+                Expr::binary(
+                    BinaryOp::Add,
+                    Expr::binary(
+                        BinaryOp::Add,
+                        Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
+                        Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4))
+                    ),
+                    Expr::binary(BinaryOp::Mul, Expr::int(5), Expr::int(6))
                 ),
-                mul(int(7), int(8))
+                Expr::binary(BinaryOp::Mul, Expr::int(7), Expr::int(8))
             )
         );
 
@@ -137,12 +153,26 @@ mod tests {
     // Canonical term is `1 * 2`.
     #[test]
     fn parses_term() {
-        assert_parses!("1", int(1));
-        assert_parses!("1 * 2", mul(int(1), int(2)));
-        assert_parses!("1 / 2", div(int(1), int(2)));
+        assert_parses!("1", Expr::int(1));
+        assert_parses!(
+            "1 * 2",
+            Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2))
+        );
+        assert_parses!(
+            "1 / 2",
+            Expr::binary(BinaryOp::Div, Expr::int(1), Expr::int(2))
+        );
         assert_parses!(
             "1 * 2 * 3 * 4",
-            mul(mul(mul(int(1), int(2)), int(3)), int(4))
+            Expr::binary(
+                BinaryOp::Mul,
+                Expr::binary(
+                    BinaryOp::Mul,
+                    Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
+                    Expr::int(3)
+                ),
+                Expr::int(4)
+            )
         );
 
         // errors
@@ -155,8 +185,11 @@ mod tests {
     // Canonical factor is `1`.
     #[test]
     fn parses_factor() {
-        assert_parses!("1", int(1));
-        assert_parses!("(1 + 2)", add(int(1), int(2)));
+        assert_parses!("1", Expr::int(1));
+        assert_parses!(
+            "(1 + 2)",
+            Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2))
+        );
 
         // errors
         assert_does_not_parse!("(", "expected integer literal or `(`");
@@ -169,7 +202,11 @@ mod tests {
     fn parses_complex_expressions() {
         assert_parses!(
             "(1 + 2) * (3 + 4)",
-            mul(add(int(1), int(2)), add(int(3), int(4)))
+            Expr::binary(
+                BinaryOp::Mul,
+                Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
+                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4))
+            )
         );
     }
 

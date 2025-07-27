@@ -35,9 +35,6 @@ mod parser;
 mod scanner;
 mod token;
 
-#[cfg(test)]
-mod tests;
-
 #[doc(inline)]
 pub use error::Error;
 

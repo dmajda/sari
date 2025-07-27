@@ -44,7 +44,6 @@ impl Evaluator<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tests::helpers::ast::*;
 
     macro_rules! assert_evals {
         ($ast:expr, $value:expr) => {
@@ -66,48 +65,76 @@ mod tests {
 
     #[test]
     fn evals_int_lit() {
-        assert_evals!(int(1), 1);
+        assert_evals!(Expr::int(1), 1);
     }
 
     #[test]
     fn evals_binary_expr_add() {
-        assert_evals!(add(int(1), int(2)), 3);
+        assert_evals!(Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)), 3);
 
         // overflow
-        assert_evals!(add(int(2147483647), int(1)), -2147483648);
-        assert_evals!(add(int(-2147483648), int(-1)), 2147483647);
+        assert_evals!(
+            Expr::binary(BinaryOp::Add, Expr::int(2147483647), Expr::int(1)),
+            -2147483648
+        );
+        assert_evals!(
+            Expr::binary(BinaryOp::Add, Expr::int(-2147483648), Expr::int(-1)),
+            2147483647
+        );
     }
 
     #[test]
     fn evals_binary_expr_sub() {
-        assert_evals!(sub(int(3), int(2)), 1);
+        assert_evals!(Expr::binary(BinaryOp::Sub, Expr::int(3), Expr::int(2)), 1);
 
         // overflow
-        assert_evals!(sub(int(2147483647), int(-1)), -2147483648);
-        assert_evals!(sub(int(-2147483648), int(1)), 2147483647);
+        assert_evals!(
+            Expr::binary(BinaryOp::Sub, Expr::int(2147483647), Expr::int(-1)),
+            -2147483648
+        );
+        assert_evals!(
+            Expr::binary(BinaryOp::Sub, Expr::int(-2147483648), Expr::int(1)),
+            2147483647
+        );
     }
 
     #[test]
     fn evals_binary_expr_mul() {
-        assert_evals!(mul(int(2), int(3)), 6);
+        assert_evals!(Expr::binary(BinaryOp::Mul, Expr::int(2), Expr::int(3)), 6);
 
         // overflow
-        assert_evals!(mul(int(-2147483648), int(-1)), -2147483648);
+        assert_evals!(
+            Expr::binary(BinaryOp::Mul, Expr::int(-2147483648), Expr::int(-1)),
+            -2147483648
+        );
     }
 
     #[test]
     fn evals_binary_expr_div() {
-        assert_evals!(div(int(6), int(3)), 2);
+        assert_evals!(Expr::binary(BinaryOp::Div, Expr::int(6), Expr::int(3)), 2);
 
         // overflow
-        assert_evals!(div(int(-2147483648), int(-1)), -2147483648);
+        assert_evals!(
+            Expr::binary(BinaryOp::Div, Expr::int(-2147483648), Expr::int(-1)),
+            -2147483648
+        );
 
         // division by zero
-        assert_does_not_eval!(div(int(1), int(0)), "division by zero");
+        assert_does_not_eval!(
+            Expr::binary(BinaryOp::Div, Expr::int(1), Expr::int(0)),
+            "division by zero"
+        );
     }
 
     #[test]
     fn evals_complex_expressions() {
-        assert_evals!(mul(add(int(1), int(2)), add(int(3), int(4))), 21);
+        assert_evals!(
+            Expr::binary(
+                BinaryOp::Mul,
+                Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
+                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4))
+            ),
+            21
+        );
     }
 }
