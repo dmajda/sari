@@ -1,25 +1,25 @@
-use std::iter::Peekable;
-
 use crate::ast::{BinaryOp, Expr};
 use crate::error::Error;
 use crate::scanner::Scanner;
-use crate::token::TokenKind;
+use crate::token::{Token, TokenKind};
 
 pub struct Parser<'a> {
-    scanner: Peekable<Scanner<'a>>,
+    scanner: Scanner<'a>,
+    peeked: Option<Token>,
 }
 
 impl Parser<'_> {
     pub fn new(input: &str) -> Parser {
         Parser {
-            scanner: Scanner::new(input).peekable(),
+            scanner: Scanner::new(input),
+            peeked: None,
         }
     }
 
     pub fn parse(&mut self) -> Result<Box<Expr>, Error> {
         let expr = self.parse_expr()?;
 
-        if self.scanner.peek().is_some() {
+        if self.peek().kind() != TokenKind::Eof {
             return Err(Error::new("expected end of input"));
         }
 
@@ -29,10 +29,10 @@ impl Parser<'_> {
     fn parse_expr(&mut self) -> Result<Box<Expr>, Error> {
         let mut term = self.parse_term()?;
 
-        while let Some(&op) = self.scanner.peek()
+        while let &op = self.peek()
             && matches!(op.kind(), TokenKind::Plus | TokenKind::Minus)
         {
-            self.scanner.next();
+            self.next();
 
             let right = self.parse_term()?;
 
@@ -45,10 +45,10 @@ impl Parser<'_> {
     fn parse_term(&mut self) -> Result<Box<Expr>, Error> {
         let mut term = self.parse_factor()?;
 
-        while let Some(&op) = self.scanner.peek()
+        while let &op = self.peek()
             && matches!(op.kind(), TokenKind::Star | TokenKind::Slash)
         {
-            self.scanner.next();
+            self.next();
 
             let right = self.parse_factor()?;
 
@@ -59,27 +59,30 @@ impl Parser<'_> {
     }
 
     fn parse_factor(&mut self) -> Result<Box<Expr>, Error> {
-        let Some(token) = self.scanner.next() else {
-            return Err(Error::new("expected integer literal or `(`"));
-        };
+        let token = self.next();
 
         match token.kind() {
             TokenKind::Int => Ok(Expr::int(token.int_value())),
             TokenKind::LParen => {
                 let expr = self.parse_expr()?;
 
-                let Some(r_paren) = self.scanner.peek() else {
-                    return Err(Error::new("expected `)`"));
-                };
-                if !matches!(r_paren.kind(), TokenKind::RParen) {
+                if !matches!(self.peek().kind(), TokenKind::RParen) {
                     return Err(Error::new("expected `)`"));
                 }
-                self.scanner.next();
+                self.next();
 
                 Ok(expr)
             }
             _ => Err(Error::new("expected integer literal or `(`")),
         }
+    }
+
+    fn peek(&mut self) -> &Token {
+        self.peeked.get_or_insert_with(|| self.scanner.next())
+    }
+
+    fn next(&mut self) -> Token {
+        self.peeked.take().unwrap_or_else(|| self.scanner.next())
     }
 }
 

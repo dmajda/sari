@@ -13,6 +13,27 @@ impl Scanner<'_> {
         }
     }
 
+    pub fn next(&mut self) -> Token {
+        self.skip_whitespace();
+
+        let Some(ch) = self.chars.next() else {
+            return Token::eof();
+        };
+
+        match ch {
+            '+' => Token::plus(),
+            '-' => Token::minus(),
+            '*' => Token::star(),
+            '/' => Token::slash(),
+            '(' => Token::l_paren(),
+            ')' => Token::r_paren(),
+
+            '0'..='9' => self.scan_int_rest(ch),
+
+            _ => Token::error(),
+        }
+    }
+
     fn skip_whitespace(&mut self) {
         while let Some(&ch) = self.chars.peek()
             && is_whitespace(ch)
@@ -36,30 +57,6 @@ impl Scanner<'_> {
     }
 }
 
-impl Iterator for Scanner<'_> {
-    type Item = Token;
-
-    fn next(&mut self) -> Option<Token> {
-        self.skip_whitespace();
-
-        let ch = self.chars.next()?;
-        let token = match ch {
-            '+' => Token::plus(),
-            '-' => Token::minus(),
-            '*' => Token::star(),
-            '/' => Token::slash(),
-            '(' => Token::l_paren(),
-            ')' => Token::r_paren(),
-
-            '0'..='9' => self.scan_int_rest(ch),
-
-            _ => Token::error(),
-        };
-
-        Some(token)
-    }
-}
-
 fn is_whitespace(ch: char) -> bool {
     ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'
 }
@@ -75,12 +72,20 @@ fn to_digit(ch: char) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::token::TokenKind;
 
     macro_rules! assert_scans {
         ($input:expr, $tokens:expr) => {
-            let scanner = Scanner::new($input);
+            let mut scanner = Scanner::new($input);
 
-            assert_eq!(scanner.collect::<Vec<_>>(), $tokens);
+            let mut tokens = vec![];
+            while let token = scanner.next()
+                && token.kind() != TokenKind::Eof
+            {
+                tokens.push(token);
+            }
+
+            assert_eq!(tokens, $tokens);
         };
     }
 

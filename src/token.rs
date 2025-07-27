@@ -10,6 +10,7 @@ pub enum TokenKind {
     Int,
 
     Error,
+    Eof,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -77,6 +78,13 @@ impl Token {
     pub fn error() -> Token {
         Token {
             kind: TokenKind::Error,
+            value: TokenValue::None,
+        }
+    }
+
+    pub fn eof() -> Token {
+        Token {
+            kind: TokenKind::Eof,
             value: TokenValue::None,
         }
     }
