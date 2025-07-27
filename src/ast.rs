@@ -30,6 +30,16 @@ pub enum Expr {
     },
 }
 
+impl Expr {
+    pub fn int(value: i32) -> Box<Expr> {
+        Box::new(Expr::Int(value))
+    }
+
+    pub fn binary(op: BinaryOp, left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
+        Box::new(Expr::Binary { op, left, right })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

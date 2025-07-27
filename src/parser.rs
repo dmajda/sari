@@ -36,11 +36,7 @@ impl Parser<'_> {
 
             let right = self.parse_term()?;
 
-            term = Box::new(Expr::Binary {
-                op: BinaryOp::from_token(op),
-                left: term,
-                right,
-            });
+            term = Expr::binary(BinaryOp::from_token(op), term, right);
         }
 
         Ok(term)
@@ -56,11 +52,7 @@ impl Parser<'_> {
 
             let right = self.parse_factor()?;
 
-            term = Box::new(Expr::Binary {
-                op: BinaryOp::from_token(op),
-                left: term,
-                right,
-            });
+            term = Expr::binary(BinaryOp::from_token(op), term, right);
         }
 
         Ok(term)
@@ -72,7 +64,7 @@ impl Parser<'_> {
         };
 
         match token.kind() {
-            TokenKind::Int => Ok(Box::new(Expr::Int(token.int_value()))),
+            TokenKind::Int => Ok(Expr::int(token.int_value())),
             TokenKind::LParen => {
                 let expr = self.parse_expr()?;
 
