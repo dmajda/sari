@@ -26,11 +26,11 @@ impl Evaluator<'_> {
                         BinaryOp::Sub => Ok(left.wrapping_sub(right)),
                         BinaryOp::Mul => Ok(left.wrapping_mul(right)),
                         BinaryOp::Div => {
-                            if right != 0 {
-                                Ok(left.wrapping_div(right))
-                            } else {
-                                Err(Error::new("division by zero"))
+                            if right == 0 {
+                                return Err(Error::new("division by zero"));
                             }
+
+                            Ok(left.wrapping_div(right))
                         }
                     }
                 }
