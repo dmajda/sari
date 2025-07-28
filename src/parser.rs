@@ -29,11 +29,8 @@ impl Parser<'_> {
     fn parse_expr(&mut self) -> Result<Box<Expr>, Error> {
         let mut term = self.parse_term()?;
 
-        while let &op = self.peek()
-            && matches!(op.kind(), TokenKind::Plus | TokenKind::Minus)
-        {
-            self.next();
-
+        while matches!(self.peek().kind(), TokenKind::Plus | TokenKind::Minus) {
+            let op = self.next();
             let right = self.parse_term()?;
 
             term = Expr::binary(BinaryOp::from_token(op), term, right);
@@ -45,11 +42,8 @@ impl Parser<'_> {
     fn parse_term(&mut self) -> Result<Box<Expr>, Error> {
         let mut term = self.parse_factor()?;
 
-        while let &op = self.peek()
-            && matches!(op.kind(), TokenKind::Star | TokenKind::Slash)
-        {
-            self.next();
-
+        while matches!(self.peek().kind(), TokenKind::Star | TokenKind::Slash) {
+            let op = self.next();
             let right = self.parse_factor()?;
 
             term = Expr::binary(BinaryOp::from_token(op), term, right);
