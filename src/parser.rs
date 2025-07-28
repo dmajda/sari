@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::ast::{BinaryOp, Expr};
 use crate::error::Error;
 use crate::scanner::Scanner;
@@ -5,23 +7,22 @@ use crate::token::{Token, TokenKind};
 
 pub struct Parser<'a> {
     scanner: Scanner<'a>,
-    peeked: Option<Token>,
+    current: Token,
 }
 
 impl Parser<'_> {
     pub fn new(input: &str) -> Parser {
         Parser {
             scanner: Scanner::new(input),
-            peeked: None,
+            current: Token::eof(),
         }
     }
 
     pub fn parse(&mut self) -> Result<Box<Expr>, Error> {
-        let expr = self.parse_expr()?;
+        self.advance();
 
-        if self.next().kind() != TokenKind::Eof {
-            return Err(Error::new("expected end of input"));
-        }
+        let expr = self.parse_expr()?;
+        self.expect(TokenKind::Eof)?;
 
         Ok(expr)
     }
@@ -29,8 +30,7 @@ impl Parser<'_> {
     fn parse_expr(&mut self) -> Result<Box<Expr>, Error> {
         let mut left = self.parse_term()?;
 
-        while matches!(self.peek().kind(), TokenKind::Plus | TokenKind::Minus) {
-            let op = self.next();
+        while let Some(op) = self.accept_any(&[TokenKind::Plus, TokenKind::Minus]) {
             let right = self.parse_term()?;
 
             left = Expr::binary(BinaryOp::from_token(op), left, right);
@@ -42,8 +42,7 @@ impl Parser<'_> {
     fn parse_term(&mut self) -> Result<Box<Expr>, Error> {
         let mut left = self.parse_factor()?;
 
-        while matches!(self.peek().kind(), TokenKind::Star | TokenKind::Slash) {
-            let op = self.next();
+        while let Some(op) = self.accept_any(&[TokenKind::Star, TokenKind::Slash]) {
             let right = self.parse_factor()?;
 
             left = Expr::binary(BinaryOp::from_token(op), left, right);
@@ -53,29 +52,51 @@ impl Parser<'_> {
     }
 
     fn parse_factor(&mut self) -> Result<Box<Expr>, Error> {
-        let token = self.next();
+        match self.current().kind() {
+            TokenKind::Int => {
+                let int = self.advance();
 
-        match token.kind() {
-            TokenKind::Int => Ok(Expr::int(token.int_value())),
+                Ok(Expr::int(int.int_value()))
+            }
+
             TokenKind::LParen => {
+                self.advance();
                 let expr = self.parse_expr()?;
-
-                if !matches!(self.next().kind(), TokenKind::RParen) {
-                    return Err(Error::new("expected `)`"));
-                }
+                self.expect(TokenKind::RParen)?;
 
                 Ok(expr)
             }
-            _ => Err(Error::new("expected integer literal or `(`")),
+
+            _ => Err(Error::new(&format!(
+                "expected {} or {}",
+                TokenKind::Int,
+                TokenKind::LParen
+            ))),
         }
     }
 
-    fn peek(&mut self) -> &Token {
-        self.peeked.get_or_insert_with(|| self.scanner.next())
+    fn accept_any(&mut self, kinds: &[TokenKind]) -> Option<Token> {
+        if kinds.contains(&self.current().kind()) {
+            Some(self.advance())
+        } else {
+            None
+        }
     }
 
-    fn next(&mut self) -> Token {
-        self.peeked.take().unwrap_or_else(|| self.scanner.next())
+    fn expect(&mut self, kind: TokenKind) -> Result<Token, Error> {
+        if self.current().kind() == kind {
+            Ok(self.advance())
+        } else {
+            Err(Error::new(&format!("expected {kind}")))
+        }
+    }
+
+    fn advance(&mut self) -> Token {
+        mem::replace(&mut self.current, self.scanner.next())
+    }
+
+    fn current(&self) -> &Token {
+        &self.current
     }
 }
 

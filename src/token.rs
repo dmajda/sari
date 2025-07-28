@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum TokenKind {
     Plus,
@@ -11,6 +13,24 @@ pub enum TokenKind {
 
     Error,
     Eof,
+}
+
+impl fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TokenKind::Plus => write!(f, "`+`"),
+            TokenKind::Minus => write!(f, "`-`"),
+            TokenKind::Star => write!(f, "`*`"),
+            TokenKind::Slash => write!(f, "`/`"),
+            TokenKind::LParen => write!(f, "`(`"),
+            TokenKind::RParen => write!(f, "`)`"),
+
+            TokenKind::Int => write!(f, "integer literal"),
+
+            TokenKind::Error => write!(f, "error"),
+            TokenKind::Eof => write!(f, "end of input"),
+        }
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
