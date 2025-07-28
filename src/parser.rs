@@ -27,29 +27,29 @@ impl Parser<'_> {
     }
 
     fn parse_expr(&mut self) -> Result<Box<Expr>, Error> {
-        let mut term = self.parse_term()?;
+        let mut left = self.parse_term()?;
 
         while matches!(self.peek().kind(), TokenKind::Plus | TokenKind::Minus) {
             let op = self.next();
             let right = self.parse_term()?;
 
-            term = Expr::binary(BinaryOp::from_token(op), term, right);
+            left = Expr::binary(BinaryOp::from_token(op), left, right);
         }
 
-        Ok(term)
+        Ok(left)
     }
 
     fn parse_term(&mut self) -> Result<Box<Expr>, Error> {
-        let mut term = self.parse_factor()?;
+        let mut left = self.parse_factor()?;
 
         while matches!(self.peek().kind(), TokenKind::Star | TokenKind::Slash) {
             let op = self.next();
             let right = self.parse_factor()?;
 
-            term = Expr::binary(BinaryOp::from_token(op), term, right);
+            left = Expr::binary(BinaryOp::from_token(op), left, right);
         }
 
-        Ok(term)
+        Ok(left)
     }
 
     fn parse_factor(&mut self) -> Result<Box<Expr>, Error> {
