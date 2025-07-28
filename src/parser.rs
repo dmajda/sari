@@ -19,7 +19,7 @@ impl Parser<'_> {
     pub fn parse(&mut self) -> Result<Box<Expr>, Error> {
         let expr = self.parse_expr()?;
 
-        if self.peek().kind() != TokenKind::Eof {
+        if self.next().kind() != TokenKind::Eof {
             return Err(Error::new("expected end of input"));
         }
 
@@ -66,10 +66,9 @@ impl Parser<'_> {
             TokenKind::LParen => {
                 let expr = self.parse_expr()?;
 
-                if !matches!(self.peek().kind(), TokenKind::RParen) {
+                if !matches!(self.next().kind(), TokenKind::RParen) {
                     return Err(Error::new("expected `)`"));
                 }
-                self.next();
 
                 Ok(expr)
             }
