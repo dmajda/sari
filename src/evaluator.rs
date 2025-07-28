@@ -14,30 +14,36 @@ impl Evaluator<'_> {
     }
 
     pub fn eval(&self) -> Result<i32, Error> {
-        fn eval_expr(expr: &Expr) -> Result<i32, Error> {
-            match expr {
-                Expr::Int(IntExpr { value }) => Ok(*value),
-                Expr::Binary(BinaryExpr { op, left, right }) => {
-                    let left = eval_expr(left)?;
-                    let right = eval_expr(right)?;
+        self.eval_expr(self.ast)
+    }
 
-                    match op {
-                        BinaryOp::Add => Ok(left.wrapping_add(right)),
-                        BinaryOp::Sub => Ok(left.wrapping_sub(right)),
-                        BinaryOp::Mul => Ok(left.wrapping_mul(right)),
-                        BinaryOp::Div => {
-                            if right == 0 {
-                                return Err(Error::new("division by zero"));
-                            }
+    fn eval_expr(&self, expr: &Expr) -> Result<i32, Error> {
+        match expr {
+            Expr::Int(expr) => self.eval_int_expr(expr),
+            Expr::Binary(expr) => self.eval_binary_expr(expr),
+        }
+    }
 
-                            Ok(left.wrapping_div(right))
-                        }
-                    }
+    fn eval_int_expr(&self, expr: &IntExpr) -> Result<i32, Error> {
+        Ok(expr.value)
+    }
+
+    fn eval_binary_expr(&self, expr: &BinaryExpr) -> Result<i32, Error> {
+        let left = self.eval_expr(&expr.left)?;
+        let right = self.eval_expr(&expr.right)?;
+
+        match expr.op {
+            BinaryOp::Add => Ok(left.wrapping_add(right)),
+            BinaryOp::Sub => Ok(left.wrapping_sub(right)),
+            BinaryOp::Mul => Ok(left.wrapping_mul(right)),
+            BinaryOp::Div => {
+                if right == 0 {
+                    return Err(Error::new("division by zero"));
                 }
+
+                Ok(left.wrapping_div(right))
             }
         }
-
-        eval_expr(self.ast)
     }
 }
 
