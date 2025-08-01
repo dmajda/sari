@@ -76,7 +76,7 @@ mod tests {
     use crate::token::TokenKind;
 
     macro_rules! assert_scans {
-        ($input:expr, $tokens:expr) => {
+        ($input:expr, $tokens:expr $(,)?) => {
             let mut scanner = Scanner::new($input);
 
             let mut tokens = vec![];

@@ -105,7 +105,7 @@ mod tests {
     use super::*;
 
     macro_rules! assert_parses {
-        ($input:expr, $ast:expr) => {
+        ($input:expr, $ast:expr $(,)?) => {
             let mut parser = Parser::new($input);
 
             assert_eq!(parser.parse(), Ok($ast));
@@ -113,7 +113,7 @@ mod tests {
     }
 
     macro_rules! assert_does_not_parse {
-        ($input:expr, $error:expr) => {
+        ($input:expr, $error:expr $(,)?) => {
             let mut parser = Parser::new($input);
 
             assert_eq!(parser.parse(), Err(Error::new($error)));

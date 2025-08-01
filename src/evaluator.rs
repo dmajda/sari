@@ -49,7 +49,7 @@ mod tests {
     use super::*;
 
     macro_rules! assert_evals {
-        ($ast:expr, $value:expr) => {
+        ($ast:expr, $value:expr $(,)?) => {
             let ast = $ast;
             let evaluator = Evaluator::new(&ast);
 
@@ -58,7 +58,7 @@ mod tests {
     }
 
     macro_rules! assert_does_not_eval {
-        ($ast:expr, $message:expr) => {
+        ($ast:expr, $message:expr $(,)?) => {
             let ast = $ast;
             let evaluator = Evaluator::new(&ast);
 
