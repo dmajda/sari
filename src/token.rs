@@ -47,66 +47,47 @@ pub struct Token {
 
 impl Token {
     pub fn plus() -> Token {
-        Token {
-            kind: TokenKind::Plus,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::Plus)
     }
 
     pub fn minus() -> Token {
-        Token {
-            kind: TokenKind::Minus,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::Minus)
     }
 
     pub fn star() -> Token {
-        Token {
-            kind: TokenKind::Star,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::Star)
     }
 
     pub fn slash() -> Token {
-        Token {
-            kind: TokenKind::Slash,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::Slash)
     }
 
     pub fn l_paren() -> Token {
-        Token {
-            kind: TokenKind::LParen,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::LParen)
     }
 
     pub fn r_paren() -> Token {
-        Token {
-            kind: TokenKind::RParen,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::RParen)
     }
 
     pub fn int(value: i32) -> Token {
-        Token {
-            kind: TokenKind::Int,
-            value: TokenValue::Int(value),
-        }
+        Token::new(TokenKind::Int, TokenValue::Int(value))
     }
 
     pub fn error() -> Token {
-        Token {
-            kind: TokenKind::Error,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::Error)
     }
 
     pub fn eof() -> Token {
-        Token {
-            kind: TokenKind::Eof,
-            value: TokenValue::None,
-        }
+        Token::simple(TokenKind::Eof)
+    }
+
+    fn simple(kind: TokenKind) -> Token {
+        Token::new(kind, TokenValue::None)
+    }
+
+    fn new(kind: TokenKind, value: TokenValue) -> Token {
+        Token { kind, value }
     }
 
     pub fn kind(&self) -> TokenKind {
