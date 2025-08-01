@@ -78,11 +78,11 @@ mod tests {
         // overflow
         assert_evals!(
             Expr::binary(BinaryOp::Add, Expr::int(2147483647), Expr::int(1)),
-            -2147483648
+            -2147483648,
         );
         assert_evals!(
             Expr::binary(BinaryOp::Add, Expr::int(-2147483648), Expr::int(-1)),
-            2147483647
+            2147483647,
         );
     }
 
@@ -93,11 +93,11 @@ mod tests {
         // overflow
         assert_evals!(
             Expr::binary(BinaryOp::Sub, Expr::int(2147483647), Expr::int(-1)),
-            -2147483648
+            -2147483648,
         );
         assert_evals!(
             Expr::binary(BinaryOp::Sub, Expr::int(-2147483648), Expr::int(1)),
-            2147483647
+            2147483647,
         );
     }
 
@@ -108,7 +108,7 @@ mod tests {
         // overflow
         assert_evals!(
             Expr::binary(BinaryOp::Mul, Expr::int(-2147483648), Expr::int(-1)),
-            -2147483648
+            -2147483648,
         );
     }
 
@@ -119,13 +119,13 @@ mod tests {
         // overflow
         assert_evals!(
             Expr::binary(BinaryOp::Div, Expr::int(-2147483648), Expr::int(-1)),
-            -2147483648
+            -2147483648,
         );
 
         // division by zero
         assert_does_not_eval!(
             Expr::binary(BinaryOp::Div, Expr::int(1), Expr::int(0)),
-            "division by zero"
+            "division by zero",
         );
     }
 
@@ -135,9 +135,9 @@ mod tests {
             Expr::binary(
                 BinaryOp::Mul,
                 Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
-                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4))
+                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4)),
             ),
-            21
+            21,
         );
     }
 }

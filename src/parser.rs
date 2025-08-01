@@ -70,7 +70,7 @@ impl Parser<'_> {
             _ => Err(Error::new(&format!(
                 "expected {} or {}",
                 TokenKind::Int,
-                TokenKind::LParen
+                TokenKind::LParen,
             ))),
         }
     }
@@ -125,23 +125,23 @@ mod tests {
     fn parses_expr() {
         assert_parses!(
             "1 * 2",
-            Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2))
+            Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
         );
         assert_parses!(
             "1 * 2 + 3 * 4",
             Expr::binary(
                 BinaryOp::Add,
                 Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
-                Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4))
-            )
+                Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4)),
+            ),
         );
         assert_parses!(
             "1 * 2 - 3 * 4",
             Expr::binary(
                 BinaryOp::Sub,
                 Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
-                Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4))
-            )
+                Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4)),
+            ),
         );
         assert_parses!(
             "1 * 2 + 3 * 4 + 5 * 6 + 7 * 8",
@@ -152,12 +152,12 @@ mod tests {
                     Expr::binary(
                         BinaryOp::Add,
                         Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
-                        Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4))
+                        Expr::binary(BinaryOp::Mul, Expr::int(3), Expr::int(4)),
                     ),
-                    Expr::binary(BinaryOp::Mul, Expr::int(5), Expr::int(6))
+                    Expr::binary(BinaryOp::Mul, Expr::int(5), Expr::int(6)),
                 ),
-                Expr::binary(BinaryOp::Mul, Expr::int(7), Expr::int(8))
-            )
+                Expr::binary(BinaryOp::Mul, Expr::int(7), Expr::int(8)),
+            ),
         );
 
         // errors
@@ -173,11 +173,11 @@ mod tests {
         assert_parses!("1", Expr::int(1));
         assert_parses!(
             "1 * 2",
-            Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2))
+            Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
         );
         assert_parses!(
             "1 / 2",
-            Expr::binary(BinaryOp::Div, Expr::int(1), Expr::int(2))
+            Expr::binary(BinaryOp::Div, Expr::int(1), Expr::int(2)),
         );
         assert_parses!(
             "1 * 2 * 3 * 4",
@@ -186,10 +186,10 @@ mod tests {
                 Expr::binary(
                     BinaryOp::Mul,
                     Expr::binary(BinaryOp::Mul, Expr::int(1), Expr::int(2)),
-                    Expr::int(3)
+                    Expr::int(3),
                 ),
-                Expr::int(4)
-            )
+                Expr::int(4),
+            ),
         );
 
         // errors
@@ -205,7 +205,7 @@ mod tests {
         assert_parses!("1", Expr::int(1));
         assert_parses!(
             "(1 + 2)",
-            Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2))
+            Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
         );
 
         // errors
@@ -222,8 +222,8 @@ mod tests {
             Expr::binary(
                 BinaryOp::Mul,
                 Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
-                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4))
-            )
+                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4)),
+            ),
         );
     }
 
