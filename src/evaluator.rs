@@ -67,7 +67,7 @@ mod tests {
     }
 
     #[test]
-    fn evals_int_lit() {
+    fn evals_int_expr() {
         assert_evals!(Expr::int(1), 1);
     }
 
