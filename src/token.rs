@@ -95,9 +95,10 @@ impl Token {
     }
 
     pub fn int_value(&self) -> i32 {
-        match self.value {
-            TokenValue::Int(value) => value,
-            _ => panic!("token {self:?} doesn't have an integer value"),
-        }
+        let TokenValue::Int(value) = self.value else {
+            panic!("token {self:?} doesn't have an integer value")
+        };
+
+        value
     }
 }
