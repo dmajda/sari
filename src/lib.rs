@@ -37,7 +37,6 @@ mod token;
 
 #[doc(inline)]
 pub use error::Error;
-
 use evaluator::Evaluator;
 use parser::Parser;
 

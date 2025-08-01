@@ -1,7 +1,4 @@
-use crate::ast::BinaryExpr;
-use crate::ast::BinaryOp;
-use crate::ast::Expr;
-use crate::ast::IntExpr;
+use crate::ast::{BinaryExpr, BinaryOp, Expr, IntExpr};
 use crate::error::Error;
 
 pub struct Evaluator<'a> {

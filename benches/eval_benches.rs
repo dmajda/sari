@@ -1,5 +1,6 @@
-use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use std::fmt;
+
+use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 
 fn generate_expr(depth: u32) -> String {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
