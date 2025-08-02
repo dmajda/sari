@@ -25,9 +25,9 @@ impl Error {
     ///
     /// let error = Error::new("division by zero");
     /// ```
-    pub fn new(message: &str) -> Error {
+    pub fn new(message: impl Into<String>) -> Error {
         Error {
-            message: message.to_owned(),
+            message: message.into(),
         }
     }
 

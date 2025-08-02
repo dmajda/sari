@@ -67,7 +67,7 @@ impl Parser<'_> {
                 Ok(expr)
             }
 
-            _ => Err(Error::new(&format!(
+            _ => Err(Error::new(format!(
                 "expected {} or {}",
                 TokenKind::Int,
                 TokenKind::LParen,
@@ -87,7 +87,7 @@ impl Parser<'_> {
         if self.current().kind() == kind {
             Ok(self.advance())
         } else {
-            Err(Error::new(&format!("expected {kind}")))
+            Err(Error::new(format!("expected {kind}")))
         }
     }
 
