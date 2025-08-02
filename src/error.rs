@@ -53,3 +53,15 @@ impl fmt::Display for Error {
 }
 
 impl error::Error for Error {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn error_fmt_works() {
+        let error = Error::new("division by zero");
+
+        assert_eq!(error.to_string(), "division by zero");
+    }
+}
