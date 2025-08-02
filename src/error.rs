@@ -16,7 +16,7 @@ pub struct Error {
 }
 
 impl Error {
-    /// Creates a new error with specified message.
+    /// Creates a new `Error` with specified message.
     ///
     /// # Examples
     ///
