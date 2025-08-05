@@ -24,6 +24,7 @@ impl Error {
     /// use sari::Error;
     ///
     /// let error = Error::new("division by zero");
+    /// assert_eq!(error.message(), "division by zero");
     /// ```
     pub fn new(message: impl Into<String>) -> Error {
         Error {
@@ -32,15 +33,6 @@ impl Error {
     }
 
     /// Returns the message.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use sari::Error;
-    ///
-    /// let error = Error::new("division by zero");
-    /// assert_eq!(error.message(), "division by zero");
-    /// ```
     pub fn message(&self) -> &str {
         &self.message
     }
