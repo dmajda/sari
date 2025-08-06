@@ -1,4 +1,4 @@
-use sari::Error;
+use sari::{Error, SourcePos, SourceSpan};
 
 #[test]
 fn evals_valid_expressions() {
@@ -7,10 +7,16 @@ fn evals_valid_expressions() {
 
 #[test]
 fn reports_parser_errors() {
-    assert_eq!(sari::eval("(1 + 2"), Err(Error::new("expected `)`")));
+    let span = SourceSpan::new(SourcePos::new(6, 1, 7), SourcePos::new(6, 1, 7));
+    let error = Error::new(span, "expected `)`");
+
+    assert_eq!(sari::eval("(1 + 2"), Err(error));
 }
 
 #[test]
 fn reports_evaluator_errors() {
-    assert_eq!(sari::eval("1 / 0"), Err(Error::new("division by zero")));
+    let span = SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(5, 1, 6));
+    let error = Error::new(span, "division by zero");
+
+    assert_eq!(sari::eval("1 / 0"), Err(error));
 }

@@ -7,16 +7,14 @@
 //! To evaluate an expression, use the `sari::eval` function:
 //!
 //! ```
-//! use sari::Error;
-//!
 //! let result = sari::eval("(1 + 2) * 3");
 //! assert_eq!(result, Ok(9));
 //!
 //! let result = sari::eval("(1 + 2");
-//! assert_eq!(result, Err(Error::new("expected `)`")));
+//! assert_eq!(result.unwrap_err().message(), "expected `)`");
 //!
 //! let result = sari::eval("1 / 0");
-//! assert_eq!(result, Err(Error::new("division by zero")));
+//! assert_eq!(result.unwrap_err().message(), "division by zero");
 //! ```
 //!
 //! # Expressions
@@ -33,12 +31,19 @@ mod error;
 mod evaluator;
 mod parser;
 mod scanner;
+mod source;
 mod token;
+
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[doc(inline)]
 pub use error::Error;
 use evaluator::Evaluator;
 use parser::Parser;
+use source::SourceMap;
+#[doc(inline)]
+pub use source::{SourcePos, SourceSpan};
 
 /// Evaluates an expression and returns the result.
 ///
@@ -49,20 +54,20 @@ use parser::Parser;
 /// # Examples
 ///
 /// ```
-/// use sari::Error;
-///
 /// let result = sari::eval("(1 + 2) * 3");
 /// assert_eq!(result, Ok(9));
 ///
 /// let result = sari::eval("(1 + 2");
-/// assert_eq!(result, Err(Error::new("expected `)`")));
+/// assert_eq!(result.unwrap_err().message(), "expected `)`");
 ///
 /// let result = sari::eval("1 / 0");
-/// assert_eq!(result, Err(Error::new("division by zero")));
+/// assert_eq!(result.unwrap_err().message(), "division by zero");
 /// ```
 pub fn eval(expr: &str) -> Result<i32, Error> {
-    let ast = Parser::new(expr).parse()?;
-    let value = Evaluator::new(&ast).eval()?;
+    let source_map = Rc::new(RefCell::new(SourceMap::new()));
+
+    let ast = Parser::new(expr, Rc::clone(&source_map)).parse()?;
+    let value = Evaluator::new(&ast, Rc::clone(&source_map)).eval()?;
 
     Ok(value)
 }

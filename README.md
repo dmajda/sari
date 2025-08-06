@@ -28,16 +28,14 @@ $ cargo install sari
 To evaluate an expression, use the `sari::eval` function:
 
 ```rust
-use sari::Error;
-
 let result = sari::eval("(1 + 2) * 3");
 assert_eq!(result, Ok(9));
 
 let result = sari::eval("(1 + 2");
-assert_eq!(result, Err(Error::new("expected `)`")));
+assert_eq!(result.unwrap_err().message(), "expected `)`");
 
 let result = sari::eval("1 / 0");
-assert_eq!(result, Err(Error::new("division by zero")));
+assert_eq!(result.unwrap_err().message(), "division by zero");
 ```
 
 For more details, see the [API documentation][sari-docs].
@@ -55,9 +53,9 @@ $ sari '(1 + 2) * 3' '(4 + 5) * 6' '(7 + 8) * 9'
 54
 135
 $ sari '(1 + 2'
-expected `)`
+1:7-1:7: expected `)`
 $ sari '1 / 0'
-division by zero
+1:1-1:6: division by zero
 ```
 
 ## Expressions

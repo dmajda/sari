@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::source::{Span, Spanned};
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum TokenKind {
     Plus,
@@ -41,53 +43,54 @@ pub enum TokenValue {
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Token {
+    span: Span,
     kind: TokenKind,
     value: TokenValue,
 }
 
 impl Token {
-    pub fn plus() -> Token {
-        Token::simple(TokenKind::Plus)
+    pub fn plus(span: Span) -> Token {
+        Token::simple(span, TokenKind::Plus)
     }
 
-    pub fn minus() -> Token {
-        Token::simple(TokenKind::Minus)
+    pub fn minus(span: Span) -> Token {
+        Token::simple(span, TokenKind::Minus)
     }
 
-    pub fn star() -> Token {
-        Token::simple(TokenKind::Star)
+    pub fn star(span: Span) -> Token {
+        Token::simple(span, TokenKind::Star)
     }
 
-    pub fn slash() -> Token {
-        Token::simple(TokenKind::Slash)
+    pub fn slash(span: Span) -> Token {
+        Token::simple(span, TokenKind::Slash)
     }
 
-    pub fn l_paren() -> Token {
-        Token::simple(TokenKind::LParen)
+    pub fn l_paren(span: Span) -> Token {
+        Token::simple(span, TokenKind::LParen)
     }
 
-    pub fn r_paren() -> Token {
-        Token::simple(TokenKind::RParen)
+    pub fn r_paren(span: Span) -> Token {
+        Token::simple(span, TokenKind::RParen)
     }
 
-    pub fn int(value: i32) -> Token {
-        Token::new(TokenKind::Int, TokenValue::Int(value))
+    pub fn int(span: Span, value: i32) -> Token {
+        Token::new(span, TokenKind::Int, TokenValue::Int(value))
     }
 
-    pub fn error() -> Token {
-        Token::simple(TokenKind::Error)
+    pub fn error(span: Span) -> Token {
+        Token::simple(span, TokenKind::Error)
     }
 
-    pub fn eof() -> Token {
-        Token::simple(TokenKind::Eof)
+    pub fn eof(span: Span) -> Token {
+        Token::simple(span, TokenKind::Eof)
     }
 
-    fn simple(kind: TokenKind) -> Token {
-        Token::new(kind, TokenValue::None)
+    fn simple(span: Span, kind: TokenKind) -> Token {
+        Token::new(span, kind, TokenValue::None)
     }
 
-    fn new(kind: TokenKind, value: TokenValue) -> Token {
-        Token { kind, value }
+    fn new(span: Span, kind: TokenKind, value: TokenValue) -> Token {
+        Token { span, kind, value }
     }
 
     pub fn kind(&self) -> TokenKind {
@@ -100,5 +103,11 @@ impl Token {
         };
 
         value
+    }
+}
+
+impl Spanned for Token {
+    fn span(&self) -> Span {
+        self.span
     }
 }
