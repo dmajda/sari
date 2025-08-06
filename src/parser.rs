@@ -64,7 +64,7 @@ impl Parser<'_> {
                 let expr = self.parse_expr()?;
                 self.expect(TokenKind::RParen)?;
 
-                Ok(expr)
+                Ok(Expr::group(expr))
             }
 
             _ => Err(Error::new(format!(
@@ -205,7 +205,7 @@ mod tests {
         assert_parses!("1", Expr::int(1));
         assert_parses!(
             "(1 + 2)",
-            Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
+            Expr::group(Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2))),
         );
 
         // errors
@@ -221,8 +221,8 @@ mod tests {
             "(1 + 2) * (3 + 4)",
             Expr::binary(
                 BinaryOp::Mul,
-                Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
-                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4)),
+                Expr::group(Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2))),
+                Expr::group(Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4))),
             ),
         );
     }

@@ -26,6 +26,11 @@ pub struct IntExpr {
 }
 
 #[derive(Clone, PartialEq, Debug)]
+pub struct GroupExpr {
+    pub expr: Box<Expr>,
+}
+
+#[derive(Clone, PartialEq, Debug)]
 pub struct BinaryExpr {
     pub op: BinaryOp,
     pub left: Box<Expr>,
@@ -35,12 +40,17 @@ pub struct BinaryExpr {
 #[derive(Clone, PartialEq, Debug)]
 pub enum Expr {
     Int(IntExpr),
+    Group(GroupExpr),
     Binary(BinaryExpr),
 }
 
 impl Expr {
     pub fn int(value: i32) -> Box<Expr> {
         Box::new(Expr::Int(IntExpr { value }))
+    }
+
+    pub fn group(expr: Box<Expr>) -> Box<Expr> {
+        Box::new(Expr::Group(GroupExpr { expr }))
     }
 
     pub fn binary(op: BinaryOp, left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {

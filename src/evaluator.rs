@@ -1,4 +1,4 @@
-use crate::ast::{BinaryExpr, BinaryOp, Expr, IntExpr};
+use crate::ast::{BinaryExpr, BinaryOp, Expr, GroupExpr, IntExpr};
 use crate::error::Error;
 
 pub struct Evaluator<'a> {
@@ -17,12 +17,17 @@ impl Evaluator<'_> {
     fn eval_expr(&self, expr: &Expr) -> Result<i32, Error> {
         match expr {
             Expr::Int(expr) => self.eval_int_expr(expr),
+            Expr::Group(expr) => self.eval_group_expr(expr),
             Expr::Binary(expr) => self.eval_binary_expr(expr),
         }
     }
 
     fn eval_int_expr(&self, expr: &IntExpr) -> Result<i32, Error> {
         Ok(expr.value)
+    }
+
+    fn eval_group_expr(&self, expr: &GroupExpr) -> Result<i32, Error> {
+        self.eval_expr(&expr.expr)
     }
 
     fn eval_binary_expr(&self, expr: &BinaryExpr) -> Result<i32, Error> {
@@ -69,6 +74,11 @@ mod tests {
     #[test]
     fn evals_int_expr() {
         assert_evals!(Expr::int(1), 1);
+    }
+
+    #[test]
+    fn evals_group_expr() {
+        assert_evals!(Expr::group(Expr::int(1)), 1);
     }
 
     #[test]
@@ -134,8 +144,8 @@ mod tests {
         assert_evals!(
             Expr::binary(
                 BinaryOp::Mul,
-                Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2)),
-                Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4)),
+                Expr::group(Expr::binary(BinaryOp::Add, Expr::int(1), Expr::int(2))),
+                Expr::group(Expr::binary(BinaryOp::Add, Expr::int(3), Expr::int(4))),
             ),
             21,
         );
