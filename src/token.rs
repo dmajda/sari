@@ -1,5 +1,3 @@
-use std::fmt;
-
 use crate::source::{Span, Spanned};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -17,20 +15,20 @@ pub enum TokenKind {
     Eof,
 }
 
-impl fmt::Display for TokenKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl TokenKind {
+    pub fn as_str(&self) -> &'static str {
         match self {
-            TokenKind::Plus => write!(f, "`+`"),
-            TokenKind::Minus => write!(f, "`-`"),
-            TokenKind::Star => write!(f, "`*`"),
-            TokenKind::Slash => write!(f, "`/`"),
-            TokenKind::LParen => write!(f, "`(`"),
-            TokenKind::RParen => write!(f, "`)`"),
+            TokenKind::Plus => "`+`",
+            TokenKind::Minus => "`-`",
+            TokenKind::Star => "`*`",
+            TokenKind::Slash => "`/`",
+            TokenKind::LParen => "`(`",
+            TokenKind::RParen => "`)`",
 
-            TokenKind::Int => write!(f, "integer literal"),
+            TokenKind::Int => "integer literal",
 
-            TokenKind::Error => write!(f, "error"),
-            TokenKind::Eof => write!(f, "end of input"),
+            TokenKind::Error => "error",
+            TokenKind::Eof => "end of input",
         }
     }
 }
