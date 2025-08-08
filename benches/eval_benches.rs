@@ -1,5 +1,3 @@
-use std::fmt;
-
 use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -10,20 +8,16 @@ enum Op {
     Div,
 }
 
-impl fmt::Display for Op {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = match *self {
+impl Op {
+    fn as_str(&self) -> &'static str {
+        match self {
             Op::Add => "+",
             Op::Sub => "-",
             Op::Mul => "*",
             Op::Div => "/",
-        };
-
-        write!(f, "{s}")
+        }
     }
-}
 
-impl Op {
     fn next(&self) -> Op {
         match self {
             Op::Add => Op::Mul,
@@ -61,7 +55,7 @@ fn generate(buf: &mut String, depth: u32, start: u32, op: Op) {
         }
 
         buf.push(' ');
-        buf.push_str(&op.to_string());
+        buf.push_str(op.as_str());
         buf.push(' ');
 
         if use_parens {
