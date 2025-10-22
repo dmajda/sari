@@ -13,7 +13,7 @@ categories = ["compilers", "mathematics"]
 [dependencies]
 
 [dev-dependencies]
-criterion = "0.6.0"
+criterion = "0.7.0"
 
 [[bench]]
 name = "eval_benches"
