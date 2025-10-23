@@ -14,7 +14,7 @@ pub struct Scanner<'a> {
 }
 
 impl Scanner<'_> {
-    pub fn new(input: &str, source_map: Rc<RefCell<SourceMap>>) -> Scanner {
+    pub fn new(input: &str, source_map: Rc<RefCell<SourceMap>>) -> Scanner<'_> {
         Scanner {
             chars: input.chars().peekable(),
             source_map,

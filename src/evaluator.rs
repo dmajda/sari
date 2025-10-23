@@ -11,7 +11,7 @@ pub struct Evaluator<'a> {
 }
 
 impl Evaluator<'_> {
-    pub fn new(ast: &Expr, source_map: Rc<RefCell<SourceMap>>) -> Evaluator {
+    pub fn new(ast: &Expr, source_map: Rc<RefCell<SourceMap>>) -> Evaluator<'_> {
         Evaluator { ast, source_map }
     }
 

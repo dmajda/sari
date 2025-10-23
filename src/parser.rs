@@ -15,7 +15,7 @@ pub struct Parser<'a> {
 }
 
 impl Parser<'_> {
-    pub fn new(input: &str, source_map: Rc<RefCell<SourceMap>>) -> Parser {
+    pub fn new(input: &str, source_map: Rc<RefCell<SourceMap>>) -> Parser<'_> {
         Parser {
             scanner: Scanner::new(input, Rc::clone(&source_map)),
             source_map,
