@@ -7,6 +7,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        rust-version: ["1.88.0", "stable"]
+
     env:
       RUSTFLAGS: -D warnings
       RUSTDOCFLAGS: -D warnings
@@ -17,8 +21,8 @@ jobs:
 
       - name: Setup Rust toolchain
         run: |
-          rustup install --profile default 1.88.0
-          rustup default 1.88.0
+          rustup install --profile default ${{ matrix.rust-version }}
+          rustup default ${{ matrix.rust-version }}
 
       - name: Check code formatting
         run: cargo fmt --check
