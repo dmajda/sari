@@ -88,9 +88,9 @@ impl Expr {
 impl Spanned for Expr {
     fn span(&self) -> Span {
         match self {
-            Expr::Int(expr) => expr.span,
-            Expr::Group(expr) => expr.span,
-            Expr::Binary(expr) => expr.span,
+            Expr::Int(expr) => expr.span(),
+            Expr::Group(expr) => expr.span(),
+            Expr::Binary(expr) => expr.span(),
         }
     }
 }
