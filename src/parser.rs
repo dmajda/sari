@@ -132,7 +132,7 @@ impl Parser<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{SourcePos, SourceSpan};
+    use crate::SourcePos;
 
     macro_rules! assert_parses {
         ($input:expr, $ast:expr $(,)?) => {

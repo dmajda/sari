@@ -75,7 +75,7 @@ impl Evaluator<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::source::{SourcePos, SourceSpan, Span};
+    use crate::source::SourcePos;
 
     macro_rules! assert_evals {
         ($ast:expr, $value:expr $(,)?) => {

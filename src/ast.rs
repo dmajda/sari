@@ -133,7 +133,6 @@ impl Spanned for Expr {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::source::Span;
 
     #[test]
     fn unary_op_from_token_works() {
