@@ -65,7 +65,7 @@ pub use source::{SourcePos, SourceSpan};
 /// assert_eq!(result.unwrap_err().message(), "division by zero");
 /// ```
 pub fn eval(expr: &str) -> Result<i32, Error> {
-    let source_map = Rc::new(RefCell::new(SourceMap::new()));
+    let source_map = Rc::new(RefCell::new(SourceMap::new(expr)));
 
     let ast = Parser::new(expr, Rc::clone(&source_map)).parse()?;
     let value = Evaluator::new(&ast, Rc::clone(&source_map)).eval()?;

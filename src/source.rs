@@ -205,13 +205,15 @@ impl fmt::Display for SourceSpan {
     }
 }
 
-pub struct SourceMap {
+pub struct SourceMap<'a> {
+    input: &'a str,
     line_starts: Vec<usize>,
 }
 
-impl SourceMap {
-    pub fn new() -> SourceMap {
+impl SourceMap<'_> {
+    pub fn new(input: &str) -> SourceMap<'_> {
         SourceMap {
+            input,
             // There is always at least one line, starting at offset 0. This is
             // the case even for an empty input.
             line_starts: vec![0],
@@ -220,6 +222,7 @@ impl SourceMap {
 
     pub fn add_line_start(&mut self, pos: usize) {
         debug_assert!(pos > self.line_starts[self.line_starts.len() - 1]);
+        debug_assert!(pos <= self.input.len());
 
         self.line_starts.push(pos);
     }
@@ -320,7 +323,7 @@ mod tests {
 
     #[test]
     fn source_map_mapping() {
-        let mut source_map = SourceMap::new();
+        let mut source_map = SourceMap::new("1 +\n2 +\n3");
         source_map.add_line_start(4);
         source_map.add_line_start(8);
 

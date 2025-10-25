@@ -7,11 +7,11 @@ use crate::source::{SourceMap, SourceSpan, Span, Spanned};
 
 pub struct Evaluator<'a> {
     ast: &'a Expr,
-    source_map: Rc<RefCell<SourceMap>>,
+    source_map: Rc<RefCell<SourceMap<'a>>>,
 }
 
 impl Evaluator<'_> {
-    pub fn new(ast: &Expr, source_map: Rc<RefCell<SourceMap>>) -> Evaluator<'_> {
+    pub fn new<'a>(ast: &'a Expr, source_map: Rc<RefCell<SourceMap<'a>>>) -> Evaluator<'a> {
         Evaluator { ast, source_map }
     }
 
@@ -80,7 +80,7 @@ mod tests {
 
     macro_rules! assert_evals {
         ($input:expr, $value:expr $(,)?) => {
-            let source_map = Rc::new(RefCell::new(SourceMap::new()));
+            let source_map = Rc::new(RefCell::new(SourceMap::new($input)));
 
             let ast = Parser::new($input, Rc::clone(&source_map)).parse().unwrap();
             let evaluator = Evaluator::new(&ast, Rc::clone(&source_map));
@@ -91,7 +91,7 @@ mod tests {
 
     macro_rules! assert_does_not_eval {
         ($input:expr, $error:expr $(,)?) => {
-            let source_map = Rc::new(RefCell::new(SourceMap::new()));
+            let source_map = Rc::new(RefCell::new(SourceMap::new($input)));
 
             let ast = Parser::new($input, Rc::clone(&source_map)).parse().unwrap();
             let evaluator = Evaluator::new(&ast, Rc::clone(&source_map));

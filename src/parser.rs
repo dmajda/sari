@@ -10,12 +10,12 @@ use crate::token::{Token, TokenKind};
 
 pub struct Parser<'a> {
     scanner: Scanner<'a>,
-    source_map: Rc<RefCell<SourceMap>>,
+    source_map: Rc<RefCell<SourceMap<'a>>>,
     current: Token,
 }
 
 impl Parser<'_> {
-    pub fn new(input: &str, source_map: Rc<RefCell<SourceMap>>) -> Parser<'_> {
+    pub fn new<'a>(input: &'a str, source_map: Rc<RefCell<SourceMap<'a>>>) -> Parser<'a> {
         Parser {
             scanner: Scanner::new(input, Rc::clone(&source_map)),
             source_map,
@@ -136,7 +136,7 @@ mod tests {
 
     macro_rules! assert_parses {
         ($input:expr, $ast:expr $(,)?) => {
-            let source_map = Rc::new(RefCell::new(SourceMap::new()));
+            let source_map = Rc::new(RefCell::new(SourceMap::new($input)));
             let mut parser = Parser::new($input, Rc::clone(&source_map));
 
             assert_eq!(parser.parse(), Ok($ast));
@@ -145,7 +145,7 @@ mod tests {
 
     macro_rules! assert_does_not_parse {
         ($input:expr, $error:expr $(,)?) => {
-            let source_map = Rc::new(RefCell::new(SourceMap::new()));
+            let source_map = Rc::new(RefCell::new(SourceMap::new($input)));
             let mut parser = Parser::new($input, Rc::clone(&source_map));
 
             assert_eq!(parser.parse(), Err($error));

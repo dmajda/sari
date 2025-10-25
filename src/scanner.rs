@@ -8,13 +8,13 @@ use crate::token::Token;
 
 pub struct Scanner<'a> {
     chars: Peekable<Chars<'a>>,
-    source_map: Rc<RefCell<SourceMap>>,
+    source_map: Rc<RefCell<SourceMap<'a>>>,
     pos: usize,
     start_pos: usize,
 }
 
 impl Scanner<'_> {
-    pub fn new(input: &str, source_map: Rc<RefCell<SourceMap>>) -> Scanner<'_> {
+    pub fn new<'a>(input: &'a str, source_map: Rc<RefCell<SourceMap<'a>>>) -> Scanner<'a> {
         Scanner {
             chars: input.chars().peekable(),
             source_map,
@@ -114,7 +114,7 @@ mod tests {
 
     macro_rules! assert_scans {
         ($input:expr, $tokens:expr $(,)?) => {
-            let source_map = Rc::new(RefCell::new(SourceMap::new()));
+            let source_map = Rc::new(RefCell::new(SourceMap::new($input)));
             let mut scanner = Scanner::new($input, Rc::clone(&source_map));
 
             let mut tokens = vec![];
@@ -196,8 +196,9 @@ mod tests {
 
     #[test]
     fn updates_source_map() {
-        let source_map = Rc::new(RefCell::new(SourceMap::new()));
-        let mut scanner = Scanner::new("1 +\n2 +\n3", Rc::clone(&source_map));
+        let input = "1 +\n2 +\n3";
+        let source_map = Rc::new(RefCell::new(SourceMap::new(input)));
+        let mut scanner = Scanner::new(input, Rc::clone(&source_map));
 
         while scanner.scan().kind() != TokenKind::Eof {}
 
