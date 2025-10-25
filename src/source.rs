@@ -326,20 +326,20 @@ mod tests {
 
         // line 1
         assert_eq!(
-            source_map.map_span(Span::new(0, 2)),
-            SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(2, 1, 3))
+            source_map.map_span(Span::new(0, 1)),
+            SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(1, 1, 2))
         );
 
         // line 2
         assert_eq!(
-            source_map.map_span(Span::new(4, 6)),
-            SourceSpan::new(SourcePos::new(4, 2, 1), SourcePos::new(6, 2, 3))
+            source_map.map_span(Span::new(4, 5)),
+            SourceSpan::new(SourcePos::new(4, 2, 1), SourcePos::new(5, 2, 2))
         );
 
         // line 3
         assert_eq!(
-            source_map.map_span(Span::new(8, 10)),
-            SourceSpan::new(SourcePos::new(8, 3, 1), SourcePos::new(10, 3, 3))
+            source_map.map_span(Span::new(8, 9)),
+            SourceSpan::new(SourcePos::new(8, 3, 1), SourcePos::new(9, 3, 2))
         );
     }
 }
