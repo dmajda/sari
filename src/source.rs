@@ -36,12 +36,12 @@ pub trait Spanned {
 
 /// Position in source code.
 ///
-/// The position is represented by its character offset, line, and column. The
-/// offset is zero-based, the line and column are one-based.
+/// The position is represented by its offset, line, and column. The offset is a
+/// zero-based byte index, the line and column are one-based character indices.
 ///
 /// The `Eq`, `PartialEq`, `Ord`, and `PartialOrd` traits are implemented in
-/// terms of the character offset. This reflects an assumption that the line and
-/// column are derived information.
+/// terms of the offset. This reflects an assumption that the line and column
+/// are derived information.
 ///
 /// # Example
 ///
@@ -62,8 +62,7 @@ pub struct SourcePos {
 }
 
 impl SourcePos {
-    /// Creates a new `SourcePos` with specified character offset, line, and
-    /// column.
+    /// Creates a new `SourcePos` with specified offset, line, and column.
     ///
     /// # Example
     ///
@@ -84,7 +83,7 @@ impl SourcePos {
         }
     }
 
-    /// Returns the character offset.
+    /// Returns the offset.
     pub fn offset(&self) -> usize {
         self.offset
     }
@@ -259,7 +258,11 @@ impl SourceMap<'_> {
             size = size - half - 1;
         }
 
-        SourcePos::new(pos, index + 1, pos - self.line_starts[index] + 1)
+        let line = index + 1;
+        let line_start_pos = self.line_starts[index];
+        let column = &self.input[line_start_pos..pos].chars().count() + 1;
+
+        SourcePos::new(pos, line, column)
     }
 }
 
@@ -323,9 +326,9 @@ mod tests {
 
     #[test]
     fn source_map_mapping() {
-        let mut source_map = SourceMap::new("1 +\n2 +\n3");
+        let mut source_map = SourceMap::new("1 +\n‰ +\n3");
         source_map.add_line_start(4);
-        source_map.add_line_start(8);
+        source_map.add_line_start(10);
 
         // line 1
         assert_eq!(
@@ -335,14 +338,14 @@ mod tests {
 
         // line 2
         assert_eq!(
-            source_map.map_span(Span::new(4, 5)),
-            SourceSpan::new(SourcePos::new(4, 2, 1), SourcePos::new(5, 2, 2))
+            source_map.map_span(Span::new(4, 7)),
+            SourceSpan::new(SourcePos::new(4, 2, 1), SourcePos::new(7, 2, 2))
         );
 
         // line 3
         assert_eq!(
-            source_map.map_span(Span::new(8, 9)),
-            SourceSpan::new(SourcePos::new(8, 3, 1), SourcePos::new(9, 3, 2))
+            source_map.map_span(Span::new(10, 11)),
+            SourceSpan::new(SourcePos::new(10, 3, 1), SourcePos::new(11, 3, 2))
         );
     }
 }

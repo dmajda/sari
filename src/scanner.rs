@@ -77,7 +77,7 @@ impl Scanner<'_> {
 
     fn next(&mut self) -> Option<char> {
         self.chars.next().inspect(|&ch| {
-            self.pos += 1;
+            self.pos += ch.len_utf8();
 
             if ch == '\n' {
                 self.add_line_start(self.pos);
@@ -179,7 +179,7 @@ mod tests {
         assert_scans!("%", vec![Token::error(Span::new(0, 1))]);
 
         // Unicode
-        assert_scans!("‰", vec![Token::error(Span::new(0, 1))]);
+        assert_scans!("‰", vec![Token::error(Span::new(0, 3))]);
     }
 
     #[test]
@@ -196,7 +196,7 @@ mod tests {
 
     #[test]
     fn updates_source_map() {
-        let input = "1 +\n2 +\n3";
+        let input = "1 +\n‰ +\n3";
         let source_map = Rc::new(RefCell::new(SourceMap::new(input)));
         let mut scanner = Scanner::new(input, Rc::clone(&source_map));
 
@@ -212,14 +212,14 @@ mod tests {
 
         // line 2
         assert_eq!(
-            source_map.map_span(Span::new(4, 5)),
-            SourceSpan::new(SourcePos::new(4, 2, 1), SourcePos::new(5, 2, 2))
+            source_map.map_span(Span::new(4, 7)),
+            SourceSpan::new(SourcePos::new(4, 2, 1), SourcePos::new(7, 2, 2))
         );
 
         // line 3
         assert_eq!(
-            source_map.map_span(Span::new(8, 9)),
-            SourceSpan::new(SourcePos::new(8, 3, 1), SourcePos::new(9, 3, 2))
+            source_map.map_span(Span::new(10, 11)),
+            SourceSpan::new(SourcePos::new(10, 3, 1), SourcePos::new(11, 3, 2))
         );
     }
 }
