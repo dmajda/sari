@@ -75,13 +75,14 @@ impl Evaluator<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::parser::Parser;
     use crate::source::SourcePos;
 
     macro_rules! assert_evals {
-        ($ast:expr, $value:expr $(,)?) => {
+        ($input:expr, $value:expr $(,)?) => {
             let source_map = Rc::new(RefCell::new(SourceMap::new()));
 
-            let ast = $ast;
+            let ast = Parser::new($input, Rc::clone(&source_map)).parse().unwrap();
             let evaluator = Evaluator::new(&ast, Rc::clone(&source_map));
 
             assert_eq!(evaluator.eval(), Ok($value));
@@ -89,10 +90,10 @@ mod tests {
     }
 
     macro_rules! assert_does_not_eval {
-        ($ast:expr, $error:expr $(,)?) => {
+        ($input:expr, $error:expr $(,)?) => {
             let source_map = Rc::new(RefCell::new(SourceMap::new()));
 
-            let ast = $ast;
+            let ast = Parser::new($input, Rc::clone(&source_map)).parse().unwrap();
             let evaluator = Evaluator::new(&ast, Rc::clone(&source_map));
 
             assert_eq!(evaluator.eval(), Err($error));
@@ -101,164 +102,63 @@ mod tests {
 
     #[test]
     fn evals_int_expr() {
-        assert_evals!(Expr::int(Span::new(0, 1), 1), 1);
+        assert_evals!("1", 1);
     }
 
     #[test]
     fn evals_group_expr() {
-        assert_evals!(
-            Expr::group(Span::new(0, 3), Expr::int(Span::new(1, 2), 1)),
-            1,
-        );
+        assert_evals!("(1)", 1);
     }
 
     #[test]
     fn evals_unary_expr_pos() {
-        assert_evals!(
-            Expr::unary(Span::new(0, 2), UnaryOp::Pos, Expr::int(Span::new(1, 2), 1)),
-            1,
-        );
+        assert_evals!("+1", 1);
     }
 
     #[test]
     fn evals_unary_expr_neg() {
-        assert_evals!(
-            Expr::unary(Span::new(0, 2), UnaryOp::Neg, Expr::int(Span::new(1, 2), 1)),
-            -1,
-        );
+        assert_evals!("-1", -1);
 
         // overflow
-        assert_evals!(
-            Expr::unary(
-                Span::new(0, 1),
-                UnaryOp::Neg,
-                Expr::int(Span::new(1, 12), -2147483648),
-            ),
-            -2147483648,
-        );
+        assert_evals!("-2147483648", -2147483648);
     }
 
     #[test]
     fn evals_binary_expr_add() {
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 5),
-                BinaryOp::Add,
-                Expr::int(Span::new(0, 1), 1),
-                Expr::int(Span::new(4, 5), 2),
-            ),
-            3,
-        );
+        assert_evals!("1 + 2", 3);
 
         // overflow
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 14),
-                BinaryOp::Add,
-                Expr::int(Span::new(0, 10), 2147483647),
-                Expr::int(Span::new(13, 14), 1),
-            ),
-            -2147483648,
-        );
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 16),
-                BinaryOp::Add,
-                Expr::int(Span::new(0, 11), -2147483648),
-                Expr::int(Span::new(14, 16), -1),
-            ),
-            2147483647,
-        );
+        assert_evals!("2147483647 + 1", -2147483648);
+        assert_evals!("-2147483648 + -1", 2147483647);
     }
 
     #[test]
     fn evals_binary_expr_sub() {
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 5),
-                BinaryOp::Sub,
-                Expr::int(Span::new(0, 1), 3),
-                Expr::int(Span::new(4, 5), 2),
-            ),
-            1,
-        );
+        assert_evals!("3 - 2", 1);
 
         // overflow
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 15),
-                BinaryOp::Sub,
-                Expr::int(Span::new(0, 10), 2147483647),
-                Expr::int(Span::new(13, 15), -1),
-            ),
-            -2147483648,
-        );
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 15),
-                BinaryOp::Sub,
-                Expr::int(Span::new(0, 11), -2147483648),
-                Expr::int(Span::new(14, 15), 1),
-            ),
-            2147483647,
-        );
+        assert_evals!("2147483647 - -1", -2147483648);
+        assert_evals!("-2147483648 - 1", 2147483647);
     }
 
     #[test]
     fn evals_binary_expr_mul() {
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 5),
-                BinaryOp::Mul,
-                Expr::int(Span::new(0, 1), 2),
-                Expr::int(Span::new(4, 5), 3),
-            ),
-            6,
-        );
+        assert_evals!("2 * 3", 6);
 
         // overflow
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 16),
-                BinaryOp::Mul,
-                Expr::int(Span::new(0, 11), -2147483648),
-                Expr::int(Span::new(14, 16), -1),
-            ),
-            -2147483648,
-        );
+        assert_evals!("-2147483648 * -1", -2147483648);
     }
 
     #[test]
     fn evals_binary_expr_div() {
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 5),
-                BinaryOp::Div,
-                Expr::int(Span::new(0, 1), 6),
-                Expr::int(Span::new(4, 5), 3),
-            ),
-            2,
-        );
+        assert_evals!("6 / 3", 2);
 
         // overflow
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 16),
-                BinaryOp::Div,
-                Expr::int(Span::new(0, 11), -2147483648),
-                Expr::int(Span::new(14, 16), -1),
-            ),
-            -2147483648,
-        );
+        assert_evals!("-2147483648 / -1", -2147483648);
 
         // division by zero
         assert_does_not_eval!(
-            Expr::binary(
-                Span::new(0, 5),
-                BinaryOp::Div,
-                Expr::int(Span::new(0, 1), 1),
-                Expr::int(Span::new(4, 5), 0),
-            ),
+            "1 / 0",
             Error::new(
                 SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(5, 1, 6)),
                 "division by zero",
@@ -268,30 +168,6 @@ mod tests {
 
     #[test]
     fn evals_complex_expressions() {
-        assert_evals!(
-            Expr::binary(
-                Span::new(0, 17),
-                BinaryOp::Mul,
-                Expr::group(
-                    Span::new(0, 7),
-                    Expr::binary(
-                        Span::new(1, 6),
-                        BinaryOp::Add,
-                        Expr::int(Span::new(1, 2), 1),
-                        Expr::int(Span::new(5, 6), 2),
-                    ),
-                ),
-                Expr::group(
-                    Span::new(10, 17),
-                    Expr::binary(
-                        Span::new(11, 16),
-                        BinaryOp::Add,
-                        Expr::int(Span::new(11, 12), 3),
-                        Expr::int(Span::new(15, 16), 4),
-                    ),
-                ),
-            ),
-            21,
-        );
+        assert_evals!("(1 + 2) * (3 + 4)", 21);
     }
 }
