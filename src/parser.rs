@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::mem;
 use std::rc::Rc;
 
-use crate::ast::{BinaryOp, Expr};
+use crate::ast::{BinaryOp, Expr, UnaryOp};
 use crate::error::Error;
 use crate::scanner::Scanner;
 use crate::source::{SourceMap, SourceSpan, Span, Spanned};
@@ -66,6 +66,14 @@ impl Parser<'_> {
                 Ok(Expr::int(int.span(), int.int_value()))
             }
 
+            TokenKind::Plus | TokenKind::Minus => {
+                let op = self.advance();
+                let expr = self.parse_factor()?;
+                let span = Span::cover(op.span(), expr.span());
+
+                Ok(Expr::unary(span, UnaryOp::from_token(op), expr))
+            }
+
             TokenKind::LParen => {
                 let l_paren = self.advance();
                 let expr = self.parse_expr()?;
@@ -78,8 +86,10 @@ impl Parser<'_> {
             _ => Err(self.error(
                 self.current(),
                 format!(
-                    "expected {} or {}",
+                    "expected {}, {}, {}, or {}",
                     TokenKind::Int.as_str(),
+                    TokenKind::Plus.as_str(),
+                    TokenKind::Minus.as_str(),
                     TokenKind::LParen.as_str()
                 ),
             )),
@@ -237,28 +247,28 @@ mod tests {
             "",
             Error::new(
                 SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(0, 1, 1)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
             "%",
             Error::new(
                 SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(1, 1, 2)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
             "1 + ",
             Error::new(
                 SourceSpan::new(SourcePos::new(4, 1, 5), SourcePos::new(4, 1, 5)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
             "1 + %",
             Error::new(
                 SourceSpan::new(SourcePos::new(4, 1, 5), SourcePos::new(5, 1, 6)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
     }
@@ -266,42 +276,53 @@ mod tests {
     // Canonical term is `1 * 2`.
     #[test]
     fn parses_term() {
-        assert_parses!("1", Expr::int(Span::new(0, 1), 1));
         assert_parses!(
-            "1 * 2",
+            "+1",
+            Expr::unary(Span::new(0, 2), UnaryOp::Pos, Expr::int(Span::new(1, 2), 1))
+        );
+        assert_parses!(
+            "+1 * +2",
             Expr::binary(
-                Span::new(0, 5),
+                Span::new(0, 7),
                 BinaryOp::Mul,
-                Expr::int(Span::new(0, 1), 1),
-                Expr::int(Span::new(4, 5), 2),
+                Expr::unary(Span::new(0, 2), UnaryOp::Pos, Expr::int(Span::new(1, 2), 1)),
+                Expr::unary(Span::new(5, 7), UnaryOp::Pos, Expr::int(Span::new(6, 7), 2)),
             ),
         );
         assert_parses!(
-            "1 / 2",
+            "+1 / +2",
             Expr::binary(
-                Span::new(0, 5),
+                Span::new(0, 7),
                 BinaryOp::Div,
-                Expr::int(Span::new(0, 1), 1),
-                Expr::int(Span::new(4, 5), 2),
+                Expr::unary(Span::new(0, 2), UnaryOp::Pos, Expr::int(Span::new(1, 2), 1)),
+                Expr::unary(Span::new(5, 7), UnaryOp::Pos, Expr::int(Span::new(6, 7), 2)),
             ),
         );
         assert_parses!(
-            "1 * 2 * 3 * 4",
+            "+1 * +2 * +3 * +4",
             Expr::binary(
-                Span::new(0, 13),
+                Span::new(0, 17),
                 BinaryOp::Mul,
                 Expr::binary(
-                    Span::new(0, 9),
+                    Span::new(0, 12),
                     BinaryOp::Mul,
                     Expr::binary(
-                        Span::new(0, 5),
+                        Span::new(0, 7),
                         BinaryOp::Mul,
-                        Expr::int(Span::new(0, 1), 1),
-                        Expr::int(Span::new(4, 5), 2),
+                        Expr::unary(Span::new(0, 2), UnaryOp::Pos, Expr::int(Span::new(1, 2), 1)),
+                        Expr::unary(Span::new(5, 7), UnaryOp::Pos, Expr::int(Span::new(6, 7), 2)),
                     ),
-                    Expr::int(Span::new(8, 9), 3),
+                    Expr::unary(
+                        Span::new(10, 12),
+                        UnaryOp::Pos,
+                        Expr::int(Span::new(11, 12), 3)
+                    ),
                 ),
-                Expr::int(Span::new(12, 13), 4),
+                Expr::unary(
+                    Span::new(15, 17),
+                    UnaryOp::Pos,
+                    Expr::int(Span::new(16, 17), 4)
+                ),
             ),
         );
 
@@ -310,36 +331,52 @@ mod tests {
             "",
             Error::new(
                 SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(0, 1, 1)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
             "%",
             Error::new(
                 SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(1, 1, 2)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
-            "1 * ",
+            "+1 * ",
             Error::new(
-                SourceSpan::new(SourcePos::new(4, 1, 5), SourcePos::new(4, 1, 5)),
-                "expected integer literal or `(`",
+                SourceSpan::new(SourcePos::new(5, 1, 6), SourcePos::new(5, 1, 6)),
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
-            "1 * %",
+            "+1 * %",
             Error::new(
-                SourceSpan::new(SourcePos::new(4, 1, 5), SourcePos::new(5, 1, 6)),
-                "expected integer literal or `(`",
+                SourceSpan::new(SourcePos::new(5, 1, 6), SourcePos::new(6, 1, 7)),
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
     }
 
-    // Canonical factor is `1`.
+    // Canonical factor is `+1`.
     #[test]
     fn parses_factor() {
         assert_parses!("1", Expr::int(Span::new(0, 1), 1));
+        assert_parses!(
+            "++1",
+            Expr::unary(
+                Span::new(0, 3),
+                UnaryOp::Pos,
+                Expr::unary(Span::new(1, 3), UnaryOp::Pos, Expr::int(Span::new(2, 3), 1))
+            )
+        );
+        assert_parses!(
+            "-+1",
+            Expr::unary(
+                Span::new(0, 3),
+                UnaryOp::Neg,
+                Expr::unary(Span::new(1, 3), UnaryOp::Pos, Expr::int(Span::new(2, 3), 1))
+            )
+        );
         assert_parses!(
             "(1 + 2)",
             Expr::group(
@@ -355,17 +392,45 @@ mod tests {
 
         // errors
         assert_does_not_parse!(
+            "+",
+            Error::new(
+                SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(1, 1, 2)),
+                "expected integer literal, `+`, `-`, or `(`",
+            ),
+        );
+        assert_does_not_parse!(
+            "+%",
+            Error::new(
+                SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(2, 1, 3)),
+                "expected integer literal, `+`, `-`, or `(`",
+            ),
+        );
+        assert_does_not_parse!(
+            "-",
+            Error::new(
+                SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(1, 1, 2)),
+                "expected integer literal, `+`, `-`, or `(`",
+            ),
+        );
+        assert_does_not_parse!(
+            "-%",
+            Error::new(
+                SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(2, 1, 3)),
+                "expected integer literal, `+`, `-`, or `(`",
+            ),
+        );
+        assert_does_not_parse!(
             "(",
             Error::new(
                 SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(1, 1, 2)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
             "(%",
             Error::new(
                 SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(2, 1, 3)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
         assert_does_not_parse!(
@@ -419,7 +484,7 @@ mod tests {
             "",
             Error::new(
                 SourceSpan::new(SourcePos::new(0, 1, 1), SourcePos::new(0, 1, 1)),
-                "expected integer literal or `(`",
+                "expected integer literal, `+`, `-`, or `(`",
             ),
         );
     }

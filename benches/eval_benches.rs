@@ -36,6 +36,13 @@ fn generate_expr(depth: u32) -> String {
 
 fn generate(buf: &mut String, depth: u32, start: u32, op: Op) {
     if depth == 0 {
+        if start.is_multiple_of(4) {
+            if start.is_multiple_of(8) {
+                buf.push('+')
+            } else {
+                buf.push('-')
+            };
+        }
         buf.push_str(&start.to_string());
     } else {
         let child_op = op.next();

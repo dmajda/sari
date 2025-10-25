@@ -2,6 +2,22 @@ use crate::source::{Span, Spanned};
 use crate::token::{Token, TokenKind};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum UnaryOp {
+    Pos,
+    Neg,
+}
+
+impl UnaryOp {
+    pub fn from_token(token: Token) -> UnaryOp {
+        match token.kind() {
+            TokenKind::Plus => UnaryOp::Pos,
+            TokenKind::Minus => UnaryOp::Neg,
+            _ => panic!("not a unary operator: {token:?}"),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -46,6 +62,19 @@ impl Spanned for GroupExpr {
 }
 
 #[derive(Clone, PartialEq, Debug)]
+pub struct UnaryExpr {
+    pub span: Span,
+    pub op: UnaryOp,
+    pub expr: Box<Expr>,
+}
+
+impl Spanned for UnaryExpr {
+    fn span(&self) -> Span {
+        self.span
+    }
+}
+
+#[derive(Clone, PartialEq, Debug)]
 pub struct BinaryExpr {
     pub span: Span,
     pub op: BinaryOp,
@@ -63,6 +92,7 @@ impl Spanned for BinaryExpr {
 pub enum Expr {
     Int(IntExpr),
     Group(GroupExpr),
+    Unary(UnaryExpr),
     Binary(BinaryExpr),
 }
 
@@ -73,6 +103,10 @@ impl Expr {
 
     pub fn group(span: Span, expr: Box<Expr>) -> Box<Expr> {
         Box::new(Expr::Group(GroupExpr { span, expr }))
+    }
+
+    pub fn unary(span: Span, op: UnaryOp, expr: Box<Expr>) -> Box<Expr> {
+        Box::new(Expr::Unary(UnaryExpr { span, op, expr }))
     }
 
     pub fn binary(span: Span, op: BinaryOp, left: Box<Expr>, right: Box<Expr>) -> Box<Expr> {
@@ -90,6 +124,7 @@ impl Spanned for Expr {
         match self {
             Expr::Int(expr) => expr.span(),
             Expr::Group(expr) => expr.span(),
+            Expr::Unary(expr) => expr.span(),
             Expr::Binary(expr) => expr.span(),
         }
     }
@@ -99,6 +134,15 @@ impl Spanned for Expr {
 mod tests {
     use super::*;
     use crate::source::Span;
+
+    #[test]
+    fn unary_op_from_token_works() {
+        let plus = Token::plus(Span::new(0, 1));
+        let minus = Token::minus(Span::new(0, 1));
+
+        assert_eq!(UnaryOp::from_token(plus), UnaryOp::Pos);
+        assert_eq!(UnaryOp::from_token(minus), UnaryOp::Neg);
+    }
 
     #[test]
     fn binary_op_from_token_works() {

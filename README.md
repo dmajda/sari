@@ -61,8 +61,9 @@ $ sari '1 / 0'
 ## Expressions
 
 The expressions consist of integers combined using `+`, `-`, `*`, and `/` binary
-operators (with the usual precedence and associativity) and grouped using
-parentheses. These elements can be separated by whitespace.
+operators, `+` and `-` unary operators (all with the usual precedence and
+associativity), and grouped using parentheses. These elements can be separated
+by whitespace.
 
 The expressions use wrapping 32-bit signed arithmetic. Division by zero is an
 error.

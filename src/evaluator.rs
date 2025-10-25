@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::ast::{BinaryExpr, BinaryOp, Expr, GroupExpr, IntExpr};
+use crate::ast::{BinaryExpr, BinaryOp, Expr, GroupExpr, IntExpr, UnaryExpr, UnaryOp};
 use crate::error::Error;
 use crate::source::{SourceMap, SourceSpan, Span, Spanned};
 
@@ -23,6 +23,7 @@ impl Evaluator<'_> {
         match expr {
             Expr::Int(expr) => self.eval_int_expr(expr),
             Expr::Group(expr) => self.eval_group_expr(expr),
+            Expr::Unary(expr) => self.eval_unary_expr(expr),
             Expr::Binary(expr) => self.eval_binary_expr(expr),
         }
     }
@@ -33,6 +34,15 @@ impl Evaluator<'_> {
 
     fn eval_group_expr(&self, expr: &GroupExpr) -> Result<i32, Error> {
         self.eval_expr(&expr.expr)
+    }
+
+    fn eval_unary_expr(&self, expr: &UnaryExpr) -> Result<i32, Error> {
+        let expr_inner = self.eval_expr(&expr.expr)?;
+
+        match expr.op {
+            UnaryOp::Pos => Ok(expr_inner),
+            UnaryOp::Neg => Ok(expr_inner.wrapping_neg()),
+        }
     }
 
     fn eval_binary_expr(&self, expr: &BinaryExpr) -> Result<i32, Error> {
@@ -99,6 +109,32 @@ mod tests {
         assert_evals!(
             Expr::group(Span::new(0, 3), Expr::int(Span::new(1, 2), 1)),
             1,
+        );
+    }
+
+    #[test]
+    fn evals_unary_expr_pos() {
+        assert_evals!(
+            Expr::unary(Span::new(0, 2), UnaryOp::Pos, Expr::int(Span::new(1, 2), 1)),
+            1,
+        );
+    }
+
+    #[test]
+    fn evals_unary_expr_neg() {
+        assert_evals!(
+            Expr::unary(Span::new(0, 2), UnaryOp::Neg, Expr::int(Span::new(1, 2), 1)),
+            -1,
+        );
+
+        // overflow
+        assert_evals!(
+            Expr::unary(
+                Span::new(0, 1),
+                UnaryOp::Neg,
+                Expr::int(Span::new(1, 12), -2147483648),
+            ),
+            -2147483648,
         );
     }
 
