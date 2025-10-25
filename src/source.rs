@@ -219,7 +219,7 @@ impl SourceMap {
     }
 
     pub fn add_line_start(&mut self, pos: usize) {
-        debug_assert!(self.line_starts[self.line_starts.len() - 1] < pos);
+        debug_assert!(pos > self.line_starts[self.line_starts.len() - 1]);
 
         self.line_starts.push(pos);
     }
