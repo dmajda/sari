@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::ops::{Index, IndexMut};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Span {
@@ -204,6 +205,34 @@ impl fmt::Display for SourceSpan {
     }
 }
 
+impl Index<SourceSpan> for str {
+    type Output = str;
+
+    fn index(&self, index: SourceSpan) -> &str {
+        &self[index.start().offset()..index.end().offset()]
+    }
+}
+
+impl IndexMut<SourceSpan> for str {
+    fn index_mut(&mut self, index: SourceSpan) -> &mut str {
+        &mut self[index.start().offset()..index.end().offset()]
+    }
+}
+
+impl Index<SourceSpan> for String {
+    type Output = str;
+
+    fn index(&self, index: SourceSpan) -> &str {
+        &self[index.start().offset()..index.end().offset()]
+    }
+}
+
+impl IndexMut<SourceSpan> for String {
+    fn index_mut(&mut self, index: SourceSpan) -> &mut str {
+        &mut self[index.start().offset()..index.end().offset()]
+    }
+}
+
 pub struct SourceMap<'a> {
     input: &'a str,
     line_starts: Vec<usize>,
@@ -322,6 +351,38 @@ mod tests {
         let span = SourceSpan::new(SourcePos::new(4, 1, 5), SourcePos::new(8, 2, 3));
 
         assert_eq!(span.to_string(), "1:5-2:3");
+    }
+
+    #[test]
+    fn str_index_by_source_span_works() {
+        let span = SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(3, 1, 4));
+        let string = String::from("abcd");
+
+        assert_eq!(&string.as_str()[span], "bc");
+    }
+
+    #[test]
+    fn str_index_mut_by_source_span_works() {
+        let span = SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(3, 1, 4));
+        let mut string = String::from("abcd");
+
+        assert_eq!(&mut string.as_mut_str()[span], "bc");
+    }
+
+    #[test]
+    fn string_index_by_source_span_works() {
+        let span = SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(3, 1, 4));
+        let string = String::from("abcd");
+
+        assert_eq!(&string[span], "bc");
+    }
+
+    #[test]
+    fn string_index_mut_by_source_span_works() {
+        let span = SourceSpan::new(SourcePos::new(1, 1, 2), SourcePos::new(3, 1, 4));
+        let mut string = String::from("abcd");
+
+        assert_eq!(&mut string[span], "bc");
     }
 
     #[test]
