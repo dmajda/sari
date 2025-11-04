@@ -270,7 +270,7 @@ impl SourceMap<'_> {
 
         let line = index + 1;
         let line_start_pos = self.line_starts[index];
-        let column = &self.input[line_start_pos..pos].chars().count() + 1;
+        let column = self.input[line_start_pos..pos].chars().count() + 1;
 
         SourcePos::new(pos, line, column)
     }
