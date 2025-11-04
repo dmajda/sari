@@ -263,29 +263,10 @@ impl SourceMap<'_> {
     }
 
     fn map_pos(&self, pos: usize) -> SourcePos {
-        // The algorithm below is binary search, modified in two ways:
-        //
-        //   1. Instead of tracking the lower and upper bound of the search
-        //      interval, we track its base and size. This works better with
-        //      unsigned integers.
-        //
-        //   2. We don't look for an exact match, but the greatest value less
-        //      or equal to the target one. We guarantee there always is one.
-
-        let mut base = 0;
-        let mut size = self.line_starts.len();
-        let mut index = 0;
-
-        while size > 0 {
-            let half = size / 2;
-            let mid = base + half;
-
-            if self.line_starts[mid] <= pos {
-                index = mid;
-                base = mid + 1;
-            }
-            size = size - half - 1;
-        }
+        let index = self
+            .line_starts
+            .partition_point(|&start_pos| start_pos <= pos)
+            - 1;
 
         let line = index + 1;
         let line_start_pos = self.line_starts[index];
